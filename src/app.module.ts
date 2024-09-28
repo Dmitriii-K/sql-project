@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './features/users/domain/user.entity';
 import { UserQueryRepository } from './features/users/repository/user.query-repository';
@@ -103,6 +104,16 @@ const useCases = [
       // process.env.ENV !== Environments.DEVELOPMENT &&
       // process.env.ENV !== Environments.TEST,
       envFilePath: '.env'
+    }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',
+      password: 'DK',// скрыть через useFactory???
+      database: 'newDBforBloggersPlatform',
+      autoLoadEntities: true,
+      synchronize: true,
     }),
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService<ConfigurationType, true>) => {
