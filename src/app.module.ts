@@ -26,14 +26,14 @@ import { UserRepository } from './features/users/repository/users-sql-repository
 // import { PostController } from './features/posts/api/post.controller';
 import { LoginIsExistConstraint } from './infrastructure/decorators/validate/login-is-exist.decorator';
 import { EmailIsExistConstraint } from './infrastructure/decorators/validate/email-is-exist.decorator';
-// import { AuthService } from './features/auth/application/auth.service';
 // import { AuthController } from './features/auth/api/auth.controller';
-// import { SessionController } from './features/sessions/api/session.controller';
+// import { AuthService } from './features/auth/application/auth.service';
 // import { AuthRepository } from './features/auth/repository/auth.repository';
 // import { AuthQueryRepository } from './features/auth/repository/auth.query-repository';
-// import { SessionsService } from './features/sessions/application/session.service';
-// import { SessionRepository } from './features/sessions/repository/session.repository';
-// import { SessionsQueryRepository } from './features/sessions/repository/session.query-repository';
+import { SessionController } from './features/sessions/api/session.controller';
+import { SessionsService } from './features/sessions/application/session.service';
+import { SessionRepository } from './features/sessions/repository/session.sql.repository';
+import { SessionsQueryRepository } from './features/sessions/repository/session.sql.query-repository';
 // import { Session, SessionSchema } from './features/sessions/domain/session.entity';
 // import { ApiInfo, ApiSchema } from './features/auth/domain/auth.entity';
 import { EmailService } from './infrastructure/adapters/sendEmail';
@@ -50,7 +50,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 // import { Like, LikesSchema } from './features/likes/domain/likes.entity';
 // import { BlogIsExistConstraint } from './infrastructure/decorators/validate/blog-is-exist.decorator';
 import { SoftAuthGuard } from './infrastructure/guards/dubl-guards/soft-auth.guard';
-// import { CheckTokenAuthGuard } from './infrastructure/guards/dubl-guards/check-refresh-token.guard';
+import { CheckTokenAuthGuard } from './infrastructure/guards/dubl-guards/check-refresh-token.guard';
 import configuration, { ConfigurationType } from './settings/configuration';
 import { validate } from './settings/env/configuration-validation';
 import { CreateUserUseCase } from './features/users/application/use-cases/create-user';
@@ -165,7 +165,7 @@ const useCases = [
     // BlogController,
     // PostController,
     // AuthController,//-
-    // SessionController//-
+    SessionController//-
   ],
   providers: [
     // {
@@ -174,7 +174,7 @@ const useCases = [
     // },
     AppService,
     // TestingService,//-
-    LocalStrategy, JwtStrategy, BasicStrategy, SoftAuthGuard,/* CheckTokenAuthGuard,*///-
+    LocalStrategy, JwtStrategy, BasicStrategy, SoftAuthGuard, CheckTokenAuthGuard,//-
     LoginIsExistConstraint, EmailIsExistConstraint,/* BlogIsExistConstraint,*/
     UserService, UserQueryRepository, UserRepository,//-
     BcryptService, EmailService, JwtService,//-
@@ -182,7 +182,7 @@ const useCases = [
     // BlogService, BlogRepository, BlogQueryRepository,
     // PostService, PostRepository, PostQueryRepository,
     // AuthService, AuthRepository, AuthQueryRepository,//-
-    // SessionsService, SessionRepository, SessionsQueryRepository,//-
+    SessionsService, SessionRepository, SessionsQueryRepository,//-
     ...useCases
   ]
 })

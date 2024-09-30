@@ -8,51 +8,46 @@ import { LocalAuthGuard } from "src/infrastructure/guards/local-auth.guard";
 import { JwtAuthGuard } from "src/infrastructure/guards/jwt-auth.guard";
 import { SkipThrottle, ThrottlerGuard } from "@nestjs/throttler";
 import { BearerAuthGuard } from "src/infrastructure/guards/dubl-guards/bearer-auth.guard";
-// import { CheckTokenAuthGuard } from "src/infrastructure/guards/dubl-guards/check-refresh-token.guard";
+import { CheckTokenAuthGuard } from "src/infrastructure/guards/dubl-guards/check-refresh-token.guard";
 import { RegisterUserCommand } from "../application/use-cases/register-user";
 import { CommandBus } from "@nestjs/cqrs";
-// import { CreateSessionCommand } from "../application/use-cases/create-session";
+import { CreateSessionCommand } from "../application/use-cases/create-session";
 import { NewPasswordCommand } from "../application/use-cases/new-password";
-// import { UpdateRefreshTokenCommand } from "../application/use-cases/update-refresh-token";
+import { UpdateRefreshTokenCommand } from "../application/use-cases/update-refresh-token";
 import { PasswordRecoveryCommand } from "../application/use-cases/password-recovery";
 import { ResendEmailCommand } from "../application/use-cases/resend-email";
-// import { SessionRepository } from "src/features/sessions/repository/session.repository";
+import { SessionRepository } from "src/features/sessions/repository/session.sql.repository";
 import { ConfirmEmailCommand } from "../application/use-cases/confirm-email";
-// import { AuthLogoutAndDeleteSessionCommand } from "../application/use-cases/auth-logout-and-delete-session";
+import { AuthLogoutAndDeleteSessionCommand } from "../application/use-cases/auth-logout-and-delete-session";
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController{
     constructor(
-        // protected sessionRepository: SessionRepository,
+        protected sessionRepository: SessionRepository,
         protected jwtService: JwtService,
         private commandBus: CommandBus
     ) {}
 
-    // @UseGuards(LocalAuthGuard)
-    // @Post('login')
-    // @HttpCode(200)
-    // async authLoginUser(
-    //     @Res({ passthrough: true }) res: Response,
-    //     @Req() req: Request) {
-    //         if(!req.user) throw new UnauthorizedException()
-    //         const { accessToken, refreshToken } = this.jwtService.generateToken(req.user); // ???
+    @UseGuards(LocalAuthGuard)
+    @Post('login')
+    @HttpCode(200)
+    async authLoginUser(
+        @Res({ passthrough: true }) res: Response,
+        @Req() req: Request) {
+            if(!req.user) throw new UnauthorizedException()
+            const { accessToken, refreshToken } = this.jwtService.generateToken(req.user); // ???
 
-    //         await this.commandBus.execute(new CreateSessionCommand(
-    //             req.user!.userId,
-    //             refreshToken,
-    //             req.headers["user-agent"] || "unknown",
-    //             req.ip || "unknown"
-    //         ))
-    //         // await this.authService.createSession(
-    //         //     req.user!.userId,
-    //         //     refreshToken,
-    //         //     req.headers["user-agent"] || "unknown",
-    //         //     req.ip || "unknown");
+            await this.commandBus.execute(new CreateSessionCommand(
+                req.user!.userId,
+                refreshToken,
+                req.headers["user-agent"] || "unknown",
+                req.ip || "unknown"
+            ))
 
-    //     res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
-    //     return { accessToken };
-    // }
+        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
+        return { accessToken };
+    }
 
     @Post('password-recovery')
     @HttpCode(204)
@@ -72,24 +67,24 @@ export class AuthController{
         return newPassword;
     }
 
-    // @UseGuards(CheckTokenAuthGuard)
-    // @Post('refresh-token')
-    // async authRefreshToken(
-    //     @Res() res: Response,
-    //     @Req() req: Request) {
-    //         if(!req.user) throw new UnauthorizedException()
-    //         if(!req.deviceId) throw new UnauthorizedException()
-    //         const device = await this.sessionRepository.findSessionFromDeviceId(req.deviceId); // ???
-    //         if (!device) {
-    //             throw new UnauthorizedException();
-    //         }
-    //         // const result = await this.authService.updateRefreshToken(req.user, req.deviceId);
-    //         const result = await this.commandBus.execute(new UpdateRefreshTokenCommand(req.user, req.deviceId));
+    @UseGuards(CheckTokenAuthGuard)
+    @Post('refresh-token')
+    async authRefreshToken(
+        @Res() res: Response,
+        @Req() req: Request) {
+            if(!req.user) throw new UnauthorizedException()
+            if(!req.deviceId) throw new UnauthorizedException()
+            const device = await this.sessionRepository.findSessionFromDeviceId(req.deviceId); // ???
+            if (!device) {
+                throw new UnauthorizedException();
+            }
+            // const result = await this.authService.updateRefreshToken(req.user, req.deviceId);
+            const result = await this.commandBus.execute(new UpdateRefreshTokenCommand(req.user, req.deviceId));
 
-    //         const { accessToken, refreshToken } = result;
-    //         res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
-    //             .status(200).json({ accessToken });
-    //     }
+            const { accessToken, refreshToken } = result;
+            res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
+                .status(200).json({ accessToken });
+        }
 
     @Post('registration')
     @HttpCode(204)
@@ -125,24 +120,24 @@ export class AuthController{
         return emailResending;
     }
 
-    // @UseGuards(CheckTokenAuthGuard)
-    // @Post('logout')
-    // @HttpCode(204)
-    // async authLogout(
-    //     @Res() res: Response,
-    //     @Req() req: Request) {
-    //         if(!req.deviceId) throw new UnauthorizedException();
-    //         const device = await this.sessionRepository.findSessionFromDeviceId(req.deviceId); // ???
-    //         if (!device) {
-    //             throw new UnauthorizedException();
-    //         }
-    //         // const result = await this.authService.authLogoutAndDeleteSession(req.deviceId);
-    //         const result = await this.commandBus.execute(new AuthLogoutAndDeleteSessionCommand(req.deviceId));
-    //         if (result) {
-    //             res.clearCookie('refreshToken');
-    //             res.sendStatus(204);
-    //         }
-    // }
+    @UseGuards(CheckTokenAuthGuard)
+    @Post('logout')
+    @HttpCode(204)
+    async authLogout(
+        @Res() res: Response,
+        @Req() req: Request) {
+            if(!req.deviceId) throw new UnauthorizedException();
+            const device = await this.sessionRepository.findSessionFromDeviceId(req.deviceId); // ???
+            if (!device) {
+                throw new UnauthorizedException();
+            }
+            // const result = await this.authService.authLogoutAndDeleteSession(req.deviceId);
+            const result = await this.commandBus.execute(new AuthLogoutAndDeleteSessionCommand(req.deviceId));
+            if (result) {
+                res.clearCookie('refreshToken');
+                res.sendStatus(204);
+            }
+    }
 
     @SkipThrottle()
     @UseGuards(JwtAuthGuard)
