@@ -6,7 +6,7 @@ import {
     ValidatorConstraint,
     ValidatorConstraintInterface,
 } from 'class-validator';
-import { UserRepository } from 'src/features/users/repository/user.repository';
+import { UserRepository } from 'src/features/users/repository/users-sql-repository';
 
 // Обязательна регистрация в ioc
 @ValidatorConstraint({ name: 'EmailIsExist', async: true })

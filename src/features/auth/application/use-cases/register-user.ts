@@ -1,9 +1,9 @@
 import { UserInputModel } from "src/features/users/api/models/input.models";
-import { User } from "src/features/users/domain/user.entity";
+import { User } from "src/features/users/domain/user.sql.entity";
 import { BcryptService } from "src/infrastructure/adapters/bcrypt";
 import { EmailService } from "src/infrastructure/adapters/sendEmail";
 import { CommandHandler } from "@nestjs/cqrs";
-import { UserRepository } from "src/features/users/repository/user.repository";
+import { UserRepository } from "src/features/users/repository/users-sql-repository";
 
 export class RegisterUserCommand {
     constructor(public body: UserInputModel) {}
@@ -23,7 +23,7 @@ export class RegisterUserUseCase {
         const password = await this.bcryptService.createHashPassword(command.body.password);
         const newUserForRegistration: User = User.createUserForRegistration(command.body.login, password, command.body.email);
         await this.userRepository.createUser(newUserForRegistration); // сохранить юзера в базе данных
-        this.emailService.sendMail(newUserForRegistration.email, newUserForRegistration.emailConfirmation.confirmationCode);
+        this.emailService.sendMail(newUserForRegistration.email, newUserForRegistration.confirmationCode);
         return newUserForRegistration;
     }
 }

@@ -22,6 +22,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     if (!isCorrect) {
         throw new UnauthorizedException('Password or login is wrong');
     }
-    return {email: user.email, login: user.login, userId: user._id.toString()};
+    return {email: user.email, login: user.login, userId: user.id.toString()};
     }
 }

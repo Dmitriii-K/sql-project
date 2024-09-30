@@ -1,8 +1,8 @@
 export class UserViewModel {
-    id: string;
+    id: number;
     login: string;
     email: string;
-    createdAt: string;
+    createdAt: Date;
 }
 
 export class PaginatorUserViewModel {

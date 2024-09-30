@@ -4,11 +4,11 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './features/users/domain/user.entity';
-import { UserQueryRepository } from './features/users/repository/user.query-repository';
+import { UserQueryRepository } from './features/users/repository/users-sql-query-repository';
 import { UserController } from './features/users/api/users.controller';
 import { UserService } from './features/users/application/user.service';
 import { BcryptService } from './infrastructure/adapters/bcrypt';
-import { UserRepository } from './features/users/repository/user.repository';
+import { UserRepository } from './features/users/repository/users-sql-repository';
 // import { CommentController } from './features/comments/api/comment.controller';
 // import { CommentQueryRepository } from './features/comments/repository/comment.query-repository';
 // import { CommentRepository } from './features/comments/repository/comment.repository';
@@ -74,6 +74,8 @@ import { UsersModule } from './features/users/users.module';
 import { AdaptersModule } from './infrastructure/adapters/adapters.module';
 // import { CoreModule } from './infrastructure/core.module';
 import { TestingsModule } from './features/testing/testings.module';
+import { TestingController } from './features/testing/api/testing.controller';
+import { TestingService } from './features/testing/application/testing.service';
 
 const useCases = [
   CreateUserUseCase, 
@@ -110,33 +112,34 @@ const useCases = [
       host: 'localhost',
       port: 5432,
       username: 'postgres',
-      password: 'DK',// скрыть через useFactory???
+      password: 'dk',// скрыть через useFactory???
       database: 'newDBforBloggersPlatform',
       autoLoadEntities: true,
       synchronize: true,
     }),
-    MongooseModule.forRootAsync({
-      useFactory: (configService: ConfigService<ConfigurationType, true>) => {
-        const environmentSettings = configService.get('environmentSettings', {infer: true,});
-        const databaseSettings = configService.get('databaseSettings', {infer: true,});
-        const uri = environmentSettings.isTesting // для тестов
-          ? databaseSettings.MONGO_CONNECTION_URI_FOR_TESTS
-          : databaseSettings.MONGO_CONNECTION_URI;
-        // console.log(uri);
-        return {uri: uri};
-      },
-      inject: [ConfigService],
-    }),
-    // MongooseModule.forRoot(SETTINGS.MONGO_URL),
-    MongooseModule.forFeature([
-      { name: User.name, schema: UserSchema },//-
-      // { name: Comment.name, schema: CommentSchema },
-      // { name: Blog.name, schema: BlogSchema },
-      // { name: Post.name, schema: PostSchema },
-      // { name: Session.name, schema: SessionSchema },//-
-      // { name: ApiInfo.name, schema: ApiSchema },//-
-      // { name: Like.name, schema: LikesSchema },
-    ]),
+    TypeOrmModule.forFeature([User]),
+    // MongooseModule.forRootAsync({
+    //   useFactory: (configService: ConfigService<ConfigurationType, true>) => {
+    //     const environmentSettings = configService.get('environmentSettings', {infer: true,});
+    //     const databaseSettings = configService.get('databaseSettings', {infer: true,});
+    //     const uri = environmentSettings.isTesting // для тестов
+    //       ? databaseSettings.MONGO_CONNECTION_URI_FOR_TESTS
+    //       : databaseSettings.MONGO_CONNECTION_URI;
+    //     // console.log(uri);
+    //     return {uri: uri};
+    //   },
+    //   inject: [ConfigService],
+    // }),
+    // // MongooseModule.forRoot(SETTINGS.MONGO_URL),
+    // MongooseModule.forFeature([
+    //   { name: User.name, schema: UserSchema },//-
+    //   // { name: Comment.name, schema: CommentSchema },
+    //   // { name: Blog.name, schema: BlogSchema },
+    //   // { name: Post.name, schema: PostSchema },
+    //   // { name: Session.name, schema: SessionSchema },//-
+    //   // { name: ApiInfo.name, schema: ApiSchema },//-
+    //   // { name: Like.name, schema: LikesSchema },
+    // ]),
     JwtModule.registerAsync({
       global: true,
       useFactory:(configService: ConfigService<ConfigurationType, true>) => {
@@ -152,11 +155,12 @@ const useCases = [
     }]),
     PassportModule,
     // ...modules
-    TestingsModule
+    // TestingsModule
   ],
   controllers: [
     AppController,
     UserController,//-
+    // TestingController,//-
     // CommentController,
     // BlogController,
     // PostController,
@@ -169,6 +173,7 @@ const useCases = [
     //   useClass: UserService
     // },
     AppService,
+    // TestingService,//-
     LocalStrategy, JwtStrategy, BasicStrategy, SoftAuthGuard,/* CheckTokenAuthGuard,*///-
     LoginIsExistConstraint, EmailIsExistConstraint,/* BlogIsExistConstraint,*/
     UserService, UserQueryRepository, UserRepository,//-

@@ -1,8 +1,8 @@
 import { CommandHandler } from "@nestjs/cqrs";
 import { NewPasswordRecoveryInputModel } from "../../api/models/input.model";
 import { BcryptService } from "src/infrastructure/adapters/bcrypt";
-import { UserDocument } from "src/features/users/domain/user.entity";
-import { UserRepository } from "src/features/users/repository/user.repository";
+import { UserRepository } from "src/features/users/repository/users-sql-repository";
+import { User } from "src/features/users/domain/user.sql.entity";
 
 export class NewPasswordCommand {
     constructor(public body: NewPasswordRecoveryInputModel) {}
@@ -17,13 +17,13 @@ export class NewPasswordUseCase {
 
     async execute(command: NewPasswordRecoveryInputModel): Promise<boolean> {
         // Проверяем, существует ли пользователь с таким кодом восстановления
-        const user: UserDocument | null = await this.userRepository.findUserByCode(command.recoveryCode);
+        const user: User | null = await this.userRepository.findUserByCode(command.recoveryCode);
         if (!user) return false; // Пользователь не найден или код недействителен
-        if (user.emailConfirmation.confirmationCode !== command.recoveryCode) return false;
+        if (user.confirmationCode !== command.recoveryCode) return false;
         // Хешируем новый пароль
         const password = await this.bcryptService.createHashPassword(command.newPassword);
         // Обновляем пароль пользователя
-        const result = await this.userRepository.updatePassword(user._id.toString(), password);
+        const result = await this.userRepository.updatePassword(user.id.toString(), password);
         if (result) {
             return true;
         } else {

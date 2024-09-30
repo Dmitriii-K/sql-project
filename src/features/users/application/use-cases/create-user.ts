@@ -1,7 +1,7 @@
 import { UserInputModel } from "../../api/models/input.models";
-import { User } from "../../domain/user.entity";
+import { User } from "../../domain/user.sql.entity";
 import { BcryptService } from "src/infrastructure/adapters/bcrypt";
-import { UserRepository } from "../../repository/user.repository";
+import { UserRepository } from "../../repository/users-sql-repository";
 import { CommandHandler} from "@nestjs/cqrs";
 
 export class CreateUserCommand {

@@ -1,9 +1,9 @@
 import { BadRequestException } from "@nestjs/common";
 import { CommandHandler } from "@nestjs/cqrs";
-import { UserDocument } from "src/features/users/domain/user.entity";
 import { randomUUID } from "crypto";
 import { EmailService } from "src/infrastructure/adapters/sendEmail";
-import { UserRepository } from "src/features/users/repository/user.repository";
+import { UserRepository } from "src/features/users/repository/users-sql-repository";
+import { User } from "src/features/users/domain/user.sql.entity";
 
 export class PasswordRecoveryCommand {
     constructor(public mail: string) {}
@@ -19,13 +19,13 @@ export class PasswordRecoveryUseCase {
     async execute(command: PasswordRecoveryCommand): Promise<boolean> {
         const {mail} = command;
         // Проверяем, существует ли пользователь с таким email
-        const user: UserDocument | null = await this.userRepository.findUserByEmail(mail);
+        const user: User | null = await this.userRepository.findUserByEmail(mail);
         if (!user) {
             throw new BadRequestException();
         } // Пользователь не найден
         // Генерируем код восстановления
         const recoveryCode = randomUUID();
-        await this.userRepository.updateCode(user.id, recoveryCode);
+        await this.userRepository.updateCode(user.id.toString(), recoveryCode);
         await this.emailService.sendPasswordRecoveryMail(mail, recoveryCode);
         return true;
     }
