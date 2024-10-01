@@ -25,7 +25,7 @@ export class SoftAuthGuard implements CanActivate {
     const user = await this.userRepository.findUserByMiddleware(payload.userId)
 
     if(user) {
-        request.user = {email: user.email, login: user.login, userId: user.id.toString()};
+        request.user = {email: user.email, login: user.login, userId: user.id};
     } else {
         return true;
     }

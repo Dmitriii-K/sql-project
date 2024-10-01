@@ -22,6 +22,7 @@ export class CreateUserUseCase /*implements ICommandHandler<CreateUserCommand>*/
         const userPassword = await this.bcryptService.createHashPassword(command.body.password);
 
         const newUser: User = User.createUser(command.body.login, userPassword, command.body.email);
+        // console.log(newUser);//-------------
         return this.userRepository.insertUser(newUser);
     }
 }

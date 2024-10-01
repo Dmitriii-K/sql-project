@@ -4,7 +4,7 @@ import * as express from 'express'
 
 declare global {
     namespace Express {
-        class User { login: string; email: string; userId: string}
+        class User { login: string; email: string; userId: number}
         export interface Request {
             user?: User
             deviceId? : string

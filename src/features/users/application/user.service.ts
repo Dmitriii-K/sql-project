@@ -6,7 +6,7 @@ import { User } from "../domain/user.sql.entity";
 export class UserService /*implements IUserService*/{
     constructor(private userRepository: UserRepository) {}
 
-    async deleteUser(id: string) {
+    async deleteUser(id: number) {
         return this.userRepository.deleteUser(id);
     }
     async validateUser(login: string, pass: string): Promise<User | null> {

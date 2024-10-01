@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 
 
 export type PayloadType  = {
-userId: string;
+userId: number;
 email: string,
 login: string,
 deviceId: string,

@@ -15,14 +15,13 @@ const getConfig = (
 ) => {
     return {
     apiSettings: {
-        // PORT: Number.parseInt(environmentVariables.PORT || '3003'),
-        PORT_SQL: Number.parseInt(environmentVariables.PORT_SQL || ''),
+        PORT: Number.parseInt(environmentVariables.PORT || '3003'),
     },
 
     databaseSettings: {
         // MONGO_CONNECTION_URI: environmentVariables.MONGO_CONNECTION_URI,
         // MONGO_CONNECTION_URI_FOR_TESTS: environmentVariables.MONGO_CONNECTION_URI_FOR_TESTS,
-        SQL_CONNECTION_URI: environmentVariables.SQL_CONNECTION_URI
+        PORT_SQL: Number.parseInt(environmentVariables.PORT_SQL || ''),
     },
 
     environmentSettings: {

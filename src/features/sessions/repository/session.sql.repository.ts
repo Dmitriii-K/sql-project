@@ -9,16 +9,16 @@ export class SessionRepository{
 
     async deleteSessionById(deviceId: string): Promise<boolean> {
         const query = `
-            DELETE FROM sessions
+            DELETE FROM "Sessions"
             WHERE device_id = $1
         `;
         const result = await this.dataSource.query(query, [deviceId]);
         return result.rowCount === 1;
     }
 
-    async deleteAllSessionsExceptCurrentOne(userId: string, deviceId: string): Promise<boolean> {
+    async deleteAllSessionsExceptCurrentOne(userId: number, deviceId: string): Promise<boolean> {
         const query = `
-            DELETE FROM sessions
+            DELETE FROM "Sessions"
             WHERE user_id = $1 AND device_id <> $2
         `;
         const result = await this.dataSource.query(query, [userId, deviceId]);
@@ -27,7 +27,7 @@ export class SessionRepository{
 
     async findSessionByMiddleware(deviceId: string): Promise<Session | null> {
         const query = `
-            SELECT * FROM sessions
+            SELECT * FROM "Sessions"
             WHERE device_id = $1
         `;
         const result = await this.dataSource.query(query, [deviceId]);
@@ -36,7 +36,7 @@ export class SessionRepository{
 
     async findUserByDeviceId(deviceId: string): Promise<Session | null> {
         const query = `
-            SELECT * FROM sessions
+            SELECT * FROM "Sessions"
             WHERE device_id = $1
         `;
         const result = await this.dataSource.query(query, [deviceId]);
@@ -45,7 +45,7 @@ export class SessionRepository{
 
     async createSession(session: Session): Promise<string> {
         const query = `
-            INSERT INTO sessions (user_id, device_id, iat, exp, device_name, ip)
+            INSERT INTO "Sessions" (user_id, device_id, iat, exp, device_name, ip)
             VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING id
         `;
@@ -62,7 +62,7 @@ export class SessionRepository{
 
     async findSessionFromDeviceId(deviceId: string): Promise<Session | null> {
         const query = `
-            SELECT * FROM sessions
+            SELECT * FROM "Sessions"
             WHERE device_id = $1
         `;
         const result = await this.dataSource.query(query, [deviceId]);
@@ -71,7 +71,7 @@ export class SessionRepository{
 
     async updateIat(iat: string, deviceId: string): Promise<void> {
         const query = `
-            UPDATE sessions
+            UPDATE "Sessions"
             SET iat = $1
             WHERE device_id = $2
         `;
@@ -80,7 +80,7 @@ export class SessionRepository{
 
     async deleteSession(deviceId: string): Promise<boolean> {
         const query = `
-            DELETE FROM sessions
+            DELETE FROM "Sessions"
             WHERE device_id = $1
         `;
         const result = await this.dataSource.query(query, [deviceId]);

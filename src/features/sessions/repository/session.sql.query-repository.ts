@@ -8,14 +8,14 @@ import { Session } from "../domain/session.sql.entity";
 export class SessionsQueryRepository{
     constructor(@InjectDataSource() protected dataSource: DataSource) {}
 
-    async findSessions(userId: string): Promise<DeviceViewModel[] | null> {
+    async findSessions(userId: number): Promise<DeviceViewModel[] | null> {
         if (!userId) {
             throw new Error("User ID is required");
         }
         const currentTime = new Date().toISOString();
 
         const query = `
-            SELECT * FROM sessions
+            SELECT * FROM "Sessions"
             WHERE user_id = $1 AND exp >= $2
         `;
         const sessions = await this.dataSource.query(query, [userId, currentTime]);

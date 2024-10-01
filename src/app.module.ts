@@ -26,9 +26,9 @@ import { UserRepository } from './features/users/repository/users-sql-repository
 // import { PostController } from './features/posts/api/post.controller';
 import { LoginIsExistConstraint } from './infrastructure/decorators/validate/login-is-exist.decorator';
 import { EmailIsExistConstraint } from './infrastructure/decorators/validate/email-is-exist.decorator';
-// import { AuthController } from './features/auth/api/auth.controller';
-// import { AuthService } from './features/auth/application/auth.service';
-// import { AuthRepository } from './features/auth/repository/auth.repository';
+import { AuthController } from './features/auth/api/auth.controller';
+import { AuthService } from './features/auth/application/auth.service';
+import { AuthRepository } from './features/auth/repository/auth.repository';
 // import { AuthQueryRepository } from './features/auth/repository/auth.query-repository';
 import { SessionController } from './features/sessions/api/session.controller';
 import { SessionsService } from './features/sessions/application/session.service';
@@ -75,7 +75,7 @@ import { AdaptersModule } from './infrastructure/adapters/adapters.module';
 // import { CoreModule } from './infrastructure/core.module';
 import { TestingsModule } from './features/testing/testings.module';
 import { TestingController } from './features/testing/api/testing.controller';
-import { TestingService } from './features/testing/application/testing.service';
+import { TestingService } from './features/testing/application/testing.sql.service';
 
 const useCases = [
   CreateUserUseCase, 
@@ -107,16 +107,31 @@ const useCases = [
       // process.env.ENV !== Environments.TEST,
       envFilePath: '.env'
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'dk',// скрыть через useFactory???
-      database: 'newDBforBloggersPlatform',
-      autoLoadEntities: true,
-      synchronize: true,
-    }),
+    // TypeOrmModule.forRoot({
+    //   type: 'postgres',
+    //   host: 'localhost',
+    //   port: 5432,
+    //   username: 'postgres',
+    //   password: 'dk',// скрыть через useFactory???
+    //   database: 'newDBforBloggersPlatform',
+    //   autoLoadEntities: true,
+    //   synchronize: true,
+    // }),
+    TypeOrmModule.forRootAsync(
+      {
+        useFactory: () => {
+          return {
+            type: 'postgres',
+            host: 'localhost',
+            port: 5432,
+            username: 'postgres',
+            password: 'dk',// скрыть через useFactory???
+            database: 'newDBforBloggersPlatform',
+            autoLoadEntities: true,
+            synchronize: true,
+          }
+        }
+      }),
     TypeOrmModule.forFeature([User]),
     // MongooseModule.forRootAsync({
     //   useFactory: (configService: ConfigService<ConfigurationType, true>) => {
@@ -160,11 +175,11 @@ const useCases = [
   controllers: [
     AppController,
     UserController,//-
-    // TestingController,//-
+    TestingController,//-
     // CommentController,
     // BlogController,
     // PostController,
-    // AuthController,//-
+    AuthController,//-
     SessionController//-
   ],
   providers: [
@@ -173,7 +188,7 @@ const useCases = [
     //   useClass: UserService
     // },
     AppService,
-    // TestingService,//-
+    TestingService,//-
     LocalStrategy, JwtStrategy, BasicStrategy, SoftAuthGuard, CheckTokenAuthGuard,//-
     LoginIsExistConstraint, EmailIsExistConstraint,/* BlogIsExistConstraint,*/
     UserService, UserQueryRepository, UserRepository,//-
@@ -181,7 +196,7 @@ const useCases = [
     // CommentService, CommentQueryRepository, CommentRepository,
     // BlogService, BlogRepository, BlogQueryRepository,
     // PostService, PostRepository, PostQueryRepository,
-    // AuthService, AuthRepository, AuthQueryRepository,//-
+    AuthService, AuthRepository, /*AuthQueryRepository,*/ //-
     SessionsService, SessionRepository, SessionsQueryRepository,//-
     ...useCases
   ]

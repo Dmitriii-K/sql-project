@@ -5,7 +5,7 @@ import { SessionRepository } from "src/features/sessions/repository/session.sql.
 
 export class CreateSessionCommand {
     constructor(
-        public userId: string, 
+        public userId: number, 
         public token: string, 
         public userAgent: string, 
         public ip: string

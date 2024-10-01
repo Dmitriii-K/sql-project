@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { TestingController } from "./api/testing.controller";
-import { TestingService } from "./application/testing.service";
+import { TestingService } from "./application/testing.sql.service";
 import { MongooseModule } from "@nestjs/mongoose";
 // import { Comment, CommentSchema } from "../comments/domain/comment.entity";
 import { User, UserSchema } from "../users/domain/user.entity";

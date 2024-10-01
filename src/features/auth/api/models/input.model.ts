@@ -46,5 +46,5 @@ export class RegistrationConfirmationCodeModel {
 export interface RequestUserDTO  {
     login: string,
     email: string,
-    userId: string
+    userId: number
 }

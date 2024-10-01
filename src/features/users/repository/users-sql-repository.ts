@@ -9,7 +9,7 @@ export class UserRepository{
 
     async insertUser(user: User): Promise<string> {
         const query = `
-            INSERT INTO users (login, password, email, createdAt, confirmationCode, expirationDate, isConfirmed)
+            INSERT INTO "Users" (login, password, email, createdAt, confirmationCode, expirationDate, isConfirmed)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING id
         `;
@@ -25,9 +25,9 @@ export class UserRepository{
         return result[0].id;
     }
 
-    async findUserById(userId: string): Promise<User | null> {
+    async findUserById(userId: number): Promise<User | null> {
         const query = `
-            SELECT * FROM users
+            SELECT * FROM "Users"
             WHERE id = $1
         `;
         const result = await this.dataSource.query(query, [userId]);
@@ -35,12 +35,17 @@ export class UserRepository{
     }
 
     async findUserByMiddleware(id: string): Promise<User | null> {
-        return this.findUserById(id);
+        const query = `
+            SELECT * FROM "Users"
+            WHERE id = $1
+        `;
+        const result = await this.dataSource.query(query, [id]);
+        return result.length ? result[0] : null;
     }
 
     async loginIsExist(login: string): Promise<boolean> {
         const query = `
-            SELECT COUNT(*) FROM users
+            SELECT COUNT(*) FROM "Users"
             WHERE login = $1
         `;
         const result = await this.dataSource.query(query, [login]);
@@ -49,7 +54,7 @@ export class UserRepository{
 
     async emailIsExist(email: string): Promise<boolean> {
         const query = `
-            SELECT COUNT(*) FROM users
+            SELECT COUNT(*) FROM "Users"
             WHERE email = $1
         `;
         const result = await this.dataSource.query(query, [email]);
@@ -58,25 +63,27 @@ export class UserRepository{
 
     async findUserByLogiOrEmail(data: { login: string, email: string }): Promise<User | null> {
         const query = `
-            SELECT * FROM users
+            SELECT * FROM "Users"
             WHERE login = $1 OR email = $2
         `;
         const result = await this.dataSource.query(query, [data.login, data.email]);
         return result.length ? result[0] : null;
     }
 
-    async deleteUser(userId: string): Promise<boolean> {
+    async deleteUser(userId: number): Promise<boolean> {
+        // console.log('userId', userId)//---------
         const query = `
-            DELETE FROM users
+            DELETE FROM "Users"
             WHERE id = $1
         `;
         const result = await this.dataSource.query(query, [userId]);
+        console.log('result', result)//-----------
         return result.rowCount > 0;
     }
 
     async updateCode(userId: string, newCode: string): Promise<boolean> {
         const query = `
-            UPDATE users
+            UPDATE "Users"
             SET confirmationCode = $1
             WHERE id = $2
         `;
@@ -86,7 +93,7 @@ export class UserRepository{
 
     async updatePassword(userId: string, pass: string): Promise<boolean> {
         const query = `
-            UPDATE users
+            UPDATE "Users"
             SET password = $1
             WHERE id = $2
         `;
@@ -95,12 +102,17 @@ export class UserRepository{
     }
 
     async checkUserByRegistration(login: string, email: string): Promise<User | null> {
-        return this.findUserByLogiOrEmail({ login, email });
+        const query = `
+            SELECT * FROM "Users"
+            WHERE login = $1 OR email = $2
+        `;
+        const result = await this.dataSource.query(query, [login, email]);
+        return result.length ? result[0] : null;
     }
 
     async findUserByLoginOrEmail(loginOrEmail: string): Promise<User | null> {
         const query = `
-            SELECT * FROM users
+            SELECT * FROM "Users"
             WHERE login = $1 OR email = $1
         `;
         const result = await this.dataSource.query(query, [loginOrEmail]);
@@ -108,12 +120,26 @@ export class UserRepository{
     }
 
     async createUser(user: User): Promise<string> {
-        return this.insertUser(user);
+        const query = `
+            INSERT INTO "Users" (login, password, email, createdAt, confirmationCode, expirationDate, isConfirmed)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING id
+        `;
+        const result = await this.dataSource.query(query, [
+            user.login,
+            user.password,
+            user.email,
+            user.createdAt,
+            user.confirmationCode,
+            user.expirationDate,
+            user.isConfirmed,
+        ]);
+        return result[0].id;
     }
 
     async findUserByCode(code: string): Promise<User | null> {
         const query = `
-            SELECT * FROM users
+            SELECT * FROM "Users"
             WHERE confirmationCode = $1
         `;
         const result = await this.dataSource.query(query, [code]);
@@ -122,7 +148,7 @@ export class UserRepository{
 
     async findUserByEmail(mail: string): Promise<User | null> {
         const query = `
-            SELECT * FROM users
+            SELECT * FROM "Users"
             WHERE email = $1
         `;
         const result = await this.dataSource.query(query, [mail]);
@@ -131,7 +157,7 @@ export class UserRepository{
 
     async findOne(login: string): Promise<User | null> {
         const query = `
-            SELECT * FROM users
+            SELECT * FROM "Users"
             WHERE login = $1
         `;
         const result = await this.dataSource.query(query, [login]);
@@ -140,7 +166,7 @@ export class UserRepository{
 
     async updateConfirmation(userId: string): Promise<boolean> {
         const query = `
-            UPDATE users
+            UPDATE "Users"
             SET isConfirmed = true
             WHERE id = $1
         `;
