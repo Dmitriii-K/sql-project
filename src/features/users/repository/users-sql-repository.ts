@@ -81,14 +81,13 @@ export class UserRepository{
         return !!result[1];
     }
 
-    async updateCode(newCode: string, userId: string): Promise<boolean> {
+    async updateCode(newCode: string, userId: string): Promise<void> {
         const query = `
             UPDATE "Users"
             SET "confirmationCode" = $1
             WHERE id = $2
         `;
-        const result = await this.dataSource.query(query, [newCode, userId]);
-        return result.rowCount > 0;
+        await this.dataSource.query(query, [newCode, userId]);
     }
 
     async updatePassword(userId: string, pass: string): Promise<boolean> {

@@ -2,13 +2,6 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from './features/users/domain/user.entity';
-import { UserQueryRepository } from './features/users/repository/users-sql-query-repository';
-import { UserController } from './features/users/api/users.controller';
-import { UserService } from './features/users/application/user.service';
-import { BcryptService } from './infrastructure/adapters/bcrypt';
-import { UserRepository } from './features/users/repository/users-sql-repository';
 // import { CommentController } from './features/comments/api/comment.controller';
 // import { CommentQueryRepository } from './features/comments/repository/comment.query-repository';
 // import { CommentRepository } from './features/comments/repository/comment.repository';
@@ -25,32 +18,13 @@ import { UserRepository } from './features/users/repository/users-sql-repository
 // import { BlogController } from './features/blogs/api/blog.controller';
 // import { PostController } from './features/posts/api/post.controller';
 import { LoginIsExistConstraint } from './infrastructure/decorators/validate/login-is-exist.decorator';
-import { EmailIsExistConstraint } from './infrastructure/decorators/validate/email-is-exist.decorator';
-import { AuthController } from './features/auth/api/auth.controller';
-import { AuthService } from './features/auth/application/auth.service';
-import { AuthRepository } from './features/auth/repository/auth.repository';
-// import { AuthQueryRepository } from './features/auth/repository/auth.query-repository';
-import { SessionController } from './features/sessions/api/session.controller';
-import { SessionsService } from './features/sessions/application/session.service';
-import { SessionRepository } from './features/sessions/repository/session.sql.repository';
-import { SessionsQueryRepository } from './features/sessions/repository/session.sql.query-repository';
-// import { Session, SessionSchema } from './features/sessions/domain/session.entity';
-// import { ApiInfo, ApiSchema } from './features/auth/domain/auth.entity';
-import { EmailService } from './infrastructure/adapters/sendEmail';
-import { JwtService } from './infrastructure/adapters/jwt.pasport-service';
+import { EmailIsExistConstraint } from './infrastructure/decorators/validate/email-is-exist.decorator';;
 import { JwtModule } from '@nestjs/jwt';
-import { LocalStrategy } from './infrastructure/pasport-strategy/local.strategy';
-import { JwtStrategy } from './infrastructure/pasport-strategy/jwt.strategy';
-import { LocalAuthGuard } from './infrastructure/guards/local-auth.guard';
-import { JwtAuthGuard } from './infrastructure/guards/jwt-auth.guard';
-import { BasicStrategy } from './infrastructure/pasport-strategy/basic.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 // import { Like, LikesSchema } from './features/likes/domain/likes.entity';
 // import { BlogIsExistConstraint } from './infrastructure/decorators/validate/blog-is-exist.decorator';
-import { SoftAuthGuard } from './infrastructure/guards/dubl-guards/soft-auth.guard';
-import { CheckTokenAuthGuard } from './infrastructure/guards/dubl-guards/check-refresh-token.guard';
 import configuration, { ConfigurationType } from './settings/configuration';
 import { validate } from './settings/env/configuration-validation';
 // import { UpdatePostLikeUseCase } from './features/posts/application/use-cases/update-post-like';
@@ -60,8 +34,8 @@ import { validate } from './settings/env/configuration-validation';
 // import { CreatePostForBlogUseCase } from './features/blogs/application/use-cases/create-post-for-blog';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UsersModule } from './features/users/users.module';
-// import { SessionsModule } from './features/sessions/sessions.module';
-// import { AuthModule } from './features/auth/auth.module';
+import { SessionsModule } from './features/sessions/sessions.module';
+import { AuthModule } from './features/auth/auth.module';
 import { CreateUserUseCase } from './features/users/application/use-cases/create-user';
 import { RegisterUserUseCase } from './features/auth/application/use-cases/register-user';
 import { CreateSessionUseCase } from './features/auth/application/use-cases/create-session';
@@ -72,10 +46,8 @@ import { PasswordRecoveryUseCase } from './features/auth/application/use-cases/p
 import { AuthLogoutAndDeleteSessionUseCase } from './features/auth/application/use-cases/auth-logout-and-delete-session';
 import { ConfirmEmailUseCase } from './features/auth/application/use-cases/confirm-email';
 import { AdaptersModule } from './infrastructure/adapters/adapters.module';
-// import { CoreModule } from './infrastructure/core.module';
+import { CoreModule } from './infrastructure/core.module';
 import { TestingsModule } from './features/testing/testings.module';
-import { TestingController } from './features/testing/api/testing.controller';
-import { TestingService } from './features/testing/application/testing.sql.service';
 
 const useCases = [
   CreateUserUseCase, 
@@ -93,7 +65,7 @@ const useCases = [
   // CreatePostUseCase,
   // CreatePostForBlogUseCase
 ];
-// const modules = [UsersModule, AuthModule, SessionsModule, AdaptersModule, CoreModule];// импортировать! 
+const modules = [TestingsModule, UsersModule, AuthModule, SessionsModule, AdaptersModule, CoreModule];// импортировать! 
 
 @Module({
   imports: [
@@ -107,16 +79,6 @@ const useCases = [
       // process.env.ENV !== Environments.TEST,
       envFilePath: '.env'
     }),
-    // TypeOrmModule.forRoot({
-    //   type: 'postgres',
-    //   host: 'localhost',
-    //   port: 5432,
-    //   username: 'postgres',
-    //   password: 'dk',// скрыть через useFactory???
-    //   database: 'newDBforBloggersPlatform',
-    //   autoLoadEntities: true,
-    //   synchronize: true,
-    // }),
     TypeOrmModule.forRootAsync(
       {
         useFactory: () => {
@@ -132,7 +94,7 @@ const useCases = [
           }
         }
       }),
-    TypeOrmModule.forFeature([User]),
+    // TypeOrmModule.forFeature([User]),
     // MongooseModule.forRootAsync({
     //   useFactory: (configService: ConfigService<ConfigurationType, true>) => {
     //     const environmentSettings = configService.get('environmentSettings', {infer: true,});
@@ -169,18 +131,13 @@ const useCases = [
       limit: 5,
     }]),
     PassportModule,
-    // ...modules
-    // TestingsModule
+    ...modules
   ],
   controllers: [
     AppController,
-    UserController,//-
-    TestingController,//-
     // CommentController,
     // BlogController,
     // PostController,
-    AuthController,//-
-    SessionController//-
   ],
   providers: [
     // {
@@ -188,16 +145,10 @@ const useCases = [
     //   useClass: UserService
     // },
     AppService,
-    TestingService,//-
-    LocalStrategy, JwtStrategy, BasicStrategy, SoftAuthGuard, CheckTokenAuthGuard,//-
     LoginIsExistConstraint, EmailIsExistConstraint,/* BlogIsExistConstraint,*/
-    UserService, UserQueryRepository, UserRepository,//-
-    BcryptService, EmailService, JwtService,//-
     // CommentService, CommentQueryRepository, CommentRepository,
     // BlogService, BlogRepository, BlogQueryRepository,
     // PostService, PostRepository, PostQueryRepository,
-    AuthService, AuthRepository, /*AuthQueryRepository,*/ //-
-    SessionsService, SessionRepository, SessionsQueryRepository,//-
     ...useCases
   ]
 })
