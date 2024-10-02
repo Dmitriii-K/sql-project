@@ -1,5 +1,5 @@
 import { CommandHandler } from "@nestjs/cqrs";
-import { JwtService } from "src/infrastructure/adapters/jwt.service";
+import { JwtService } from "src/infrastructure/adapters/jwt.pasport-service";
 import { MeViewModel } from "../../api/models/output.model";
 import { SessionRepository } from "src/features/sessions/repository/session.sql.repository";
 
@@ -22,7 +22,7 @@ export class UpdateRefreshTokenUseCase {
         
         const newPairTokens = this.jwtService.generateToken(user, deviceId);
         const { accessToken, refreshToken } = newPairTokens;
-        const payload = this.jwtService.getUserIdByToken(refreshToken);
+        const payload =await  this.jwtService.getUserIdByToken(refreshToken);
         if (!payload) throw new Error('пейлода нет, хотя он должен быть после создания новой пары');
         let { iat } = payload;
         iat = new Date(iat * 1000).toISOString();

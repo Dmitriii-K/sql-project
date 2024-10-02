@@ -1,5 +1,5 @@
 import { BadRequestException, Body, Controller, Get, HttpCode, Post, Req, Res, UnauthorizedException, UseGuards } from "@nestjs/common";
-import { JwtService } from "src/infrastructure/adapters/jwt.service";
+import { JwtService } from "src/infrastructure/adapters/jwt.pasport-service";
 import { NewPasswordRecoveryInputModel, RegistrationConfirmationCodeModel, RegistrationEmailResending } from "./models/input.model";
 import { UserInputModel } from "src/features/users/api/models/input.models";
 import { Request, Response } from "express";
@@ -30,7 +30,7 @@ export class AuthController{
     ) {}
 
     @UseGuards(LocalAuthGuard)
-    @Post('login')
+    @Post('login')//---------------------------
     @HttpCode(200)
     async authLoginUser(
         @Res({ passthrough: true }) res: Response,
@@ -49,7 +49,7 @@ export class AuthController{
         return { accessToken };
     }
 
-    @Post('password-recovery')
+    @Post('password-recovery')//-------------------
     @HttpCode(204)
     async authPasswordRecovery(@Body() body: RegistrationEmailResending) {
         // await this.authService.passwordRecovery(body.email);
@@ -68,7 +68,7 @@ export class AuthController{
     }
 
     @UseGuards(CheckTokenAuthGuard)
-    @Post('refresh-token')
+    @Post('refresh-token')//-----------------
     async authRefreshToken(
         @Res() res: Response,
         @Req() req: Request) {
@@ -86,7 +86,7 @@ export class AuthController{
                 .status(200).json({ accessToken });
         }
 
-    @Post('registration')
+    @Post('registration')//-----------------
     @HttpCode(204)
     async authRegistration(@Body() body: UserInputModel) {
         // const registrationResult = await this.authService.registerUser(body);
@@ -109,7 +109,7 @@ export class AuthController{
         return result;
     }
 
-    @Post('registration-email-resending')
+    @Post('registration-email-resending')//-------------------
     @HttpCode(204)
     async authRegistrationEmailResending(@Body() body: RegistrationEmailResending) {
         // const emailResending = await this.authService.resendEmail(body.email);
@@ -121,27 +121,29 @@ export class AuthController{
     }
 
     @UseGuards(CheckTokenAuthGuard)
-    @Post('logout')
+    @Post('logout')//---------------------
     @HttpCode(204)
     async authLogout(
         @Res() res: Response,
         @Req() req: Request) {
             if(!req.deviceId) throw new UnauthorizedException();
             const device = await this.sessionRepository.findSessionFromDeviceId(req.deviceId); // ???
+            // console.log(device);//-----------
             if (!device) {
                 throw new UnauthorizedException();
             }
             // const result = await this.authService.authLogoutAndDeleteSession(req.deviceId);
             const result = await this.commandBus.execute(new AuthLogoutAndDeleteSessionCommand(req.deviceId));
             if (result) {
-                res.clearCookie('refreshToken');
-                res.sendStatus(204);
+                res.clearCookie('refreshToken').sendStatus(204);
+                return
             }
+        return res.sendStatus(418);
     }
 
     @SkipThrottle()
     @UseGuards(JwtAuthGuard)
-    @Get('me')
+    @Get('me')//----------------------
     async getUserInform(
         @Res({ passthrough: true }) response: Response,
         @Req() request: Request) {

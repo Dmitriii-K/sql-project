@@ -16,8 +16,8 @@ export class ResendEmailUseCase {
         private emailService: EmailService
     ) {}
 
-    async execute(commannd: ResendEmailCommand) {
-        const {mail} = commannd;
+    async execute(command: ResendEmailCommand) {
+        const {mail} = command;
         
         const user: User | null = await this.userRepository.findUserByEmail(mail);
         if (!user) {
@@ -27,7 +27,7 @@ export class ResendEmailUseCase {
             throw new BadRequestException({ errorsMessages: { message: "This field is verified", field: "email" } });
         }
         const newCode = randomUUID();
-        await this.userRepository.updateCode(user.id.toString(), newCode),
+        await this.userRepository.updateCode(newCode, user.id),
         this.emailService.sendMail(mail, newCode)
         return true;
     }

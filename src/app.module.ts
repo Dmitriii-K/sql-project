@@ -37,7 +37,7 @@ import { SessionsQueryRepository } from './features/sessions/repository/session.
 // import { Session, SessionSchema } from './features/sessions/domain/session.entity';
 // import { ApiInfo, ApiSchema } from './features/auth/domain/auth.entity';
 import { EmailService } from './infrastructure/adapters/sendEmail';
-import { JwtService } from './infrastructure/adapters/jwt.service';
+import { JwtService } from './infrastructure/adapters/jwt.pasport-service';
 import { JwtModule } from '@nestjs/jwt';
 import { LocalStrategy } from './infrastructure/pasport-strategy/local.strategy';
 import { JwtStrategy } from './infrastructure/pasport-strategy/jwt.strategy';
@@ -53,24 +53,24 @@ import { SoftAuthGuard } from './infrastructure/guards/dubl-guards/soft-auth.gua
 import { CheckTokenAuthGuard } from './infrastructure/guards/dubl-guards/check-refresh-token.guard';
 import configuration, { ConfigurationType } from './settings/configuration';
 import { validate } from './settings/env/configuration-validation';
-import { CreateUserUseCase } from './features/users/application/use-cases/create-user';
 // import { UpdatePostLikeUseCase } from './features/posts/application/use-cases/update-post-like';
 // import { LikeStatusUseCase } from './features/comments/application/use-cases/like-status';
-// import { RegisterUserUseCase } from './features/auth/application/use-cases/register-user';
+// import { CreateCommentByPostUseCase } from './features/posts/application/use-cases/create-comment-by-post';
+// import { CreatePostUseCase } from './features/posts/application/use-cases/create-post';
+// import { CreatePostForBlogUseCase } from './features/blogs/application/use-cases/create-post-for-blog';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UsersModule } from './features/users/users.module';
 // import { SessionsModule } from './features/sessions/sessions.module';
 // import { AuthModule } from './features/auth/auth.module';
-// import { CreateSessionUseCase } from './features/auth/application/use-cases/create-session';
-// import { ResendEmailUseCase } from './features/auth/application/use-cases/resend-email';
-// import { UpdateRefreshTokenUseCase } from './features/auth/application/use-cases/update-refresh-token';
-// import { CreateCommentByPostUseCase } from './features/posts/application/use-cases/create-comment-by-post';
-// import { CreatePostUseCase } from './features/posts/application/use-cases/create-post';
-// import { NewPasswordUseCase } from './features/auth/application/use-cases/new-password';
-// import { PasswordRecoveryUseCase } from './features/auth/application/use-cases/password-recovery';
-// import { AuthLogoutAndDeleteSessionUseCase } from './features/auth/application/use-cases/auth-logout-and-delete-session';
-// import { ConfirmEmailUseCase } from './features/auth/application/use-cases/confirm-email';
-// import { CreatePostForBlogUseCase } from './features/blogs/application/use-cases/create-post-for-blog';
+import { CreateUserUseCase } from './features/users/application/use-cases/create-user';
+import { RegisterUserUseCase } from './features/auth/application/use-cases/register-user';
+import { CreateSessionUseCase } from './features/auth/application/use-cases/create-session';
+import { ResendEmailUseCase } from './features/auth/application/use-cases/resend-email';
+import { UpdateRefreshTokenUseCase } from './features/auth/application/use-cases/update-refresh-token';
+import { NewPasswordUseCase } from './features/auth/application/use-cases/new-password';
+import { PasswordRecoveryUseCase } from './features/auth/application/use-cases/password-recovery';
+import { AuthLogoutAndDeleteSessionUseCase } from './features/auth/application/use-cases/auth-logout-and-delete-session';
+import { ConfirmEmailUseCase } from './features/auth/application/use-cases/confirm-email';
 import { AdaptersModule } from './infrastructure/adapters/adapters.module';
 // import { CoreModule } from './infrastructure/core.module';
 import { TestingsModule } from './features/testing/testings.module';
@@ -79,18 +79,18 @@ import { TestingService } from './features/testing/application/testing.sql.servi
 
 const useCases = [
   CreateUserUseCase, 
+  RegisterUserUseCase, 
+  CreateSessionUseCase, 
+  ResendEmailUseCase, 
+  UpdateRefreshTokenUseCase,
+  NewPasswordUseCase,
+  PasswordRecoveryUseCase,
+  AuthLogoutAndDeleteSessionUseCase,
+  ConfirmEmailUseCase,
   // LikeStatusUseCase, 
   // UpdatePostLikeUseCase,
-  // RegisterUserUseCase, 
-  // CreateSessionUseCase, 
-  // ResendEmailUseCase, 
-  // UpdateRefreshTokenUseCase,
   // CreateCommentByPostUseCase,
   // CreatePostUseCase,
-  // NewPasswordUseCase,
-  // PasswordRecoveryUseCase,
-  // AuthLogoutAndDeleteSessionUseCase,
-  // ConfirmEmailUseCase,
   // CreatePostForBlogUseCase
 ];
 // const modules = [UsersModule, AuthModule, SessionsModule, AdaptersModule, CoreModule];// импортировать! 

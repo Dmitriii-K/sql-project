@@ -1,7 +1,7 @@
 import {CanActivate, ExecutionContext, Injectable, UnauthorizedException} from '@nestjs/common';
 import {Request} from "express";
 import { UserRepository } from 'src/features/users/repository/users-sql-repository';
-import { JwtService } from 'src/infrastructure/adapters/jwt.service';
+import { JwtService } from 'src/infrastructure/adapters/jwt.pasport-service';
 
 @Injectable()
 export class BearerAuthGuard implements CanActivate {
@@ -18,7 +18,7 @@ export class BearerAuthGuard implements CanActivate {
         throw new UnauthorizedException();
     }
     const token = request.headers.authorization.split(" ")[1];
-    const payload = this.jwtService.getUserIdByToken(token);
+    const payload = await this.jwtService.getUserIdByToken(token);
     if(!payload) {
         throw new UnauthorizedException();
     }

@@ -8,7 +8,7 @@ import { Session } from "../domain/session.sql.entity";
 export class SessionsQueryRepository{
     constructor(@InjectDataSource() protected dataSource: DataSource) {}
 
-    async findSessions(userId: number): Promise<DeviceViewModel[] | null> {
+    async findSessions(userId: string): Promise<DeviceViewModel[] | null> {
         if (!userId) {
             throw new Error("User ID is required");
         }

@@ -4,10 +4,10 @@ import * as express from 'express'
 
 declare global {
     namespace Express {
-        class User { login: string; email: string; userId: number}
+        class User { login: string; email: string; userId: string}
         export interface Request {
             user?: User
-            deviceId? : string
+            deviceId? : string | undefined
         }
     }
 }

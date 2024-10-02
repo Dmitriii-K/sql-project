@@ -7,13 +7,15 @@ import { BasicAuthGuard } from "src/infrastructure/guards/basic.guard";
 import { BasicGuard } from "src/infrastructure/guards/dubl-guards/basic-auth.guard";
 import { CreateUserCommand} from "../application/use-cases/create-user";
 import { CommandBus } from "@nestjs/cqrs";
+import { UserRepository } from "../repository/users-sql-repository";
 
-@Controller('users')
+@Controller('sa/users')
 @UseGuards(BasicAuthGuard)
 export class UserController {
     constructor(
         protected userService: UserService,
         protected userQueryRepository: UserQueryRepository,
+        protected userRepository: UserRepository,
         private commandBus: CommandBus) {}
 
     @Get()
@@ -34,11 +36,12 @@ export class UserController {
     }
     @Delete(':id')
     @HttpCode(204)
-    async deleteUser(@Param('id') id: number) {
-        const deleteResult = await this.userService.deleteUser(id);
-        console.log('deleteResult', deleteResult)//-----------
-        if (!deleteResult) {
-            throw new NotFoundException('User is not found');
+    async deleteUser(@Param('id') id: string) {
+        const user = await this.userRepository.findUserById(id)
+        if(!user) {
+            throw new NotFoundException();
         }
+        const deleteResult = await this.userService.deleteUser(id);
+        return
     }
 }

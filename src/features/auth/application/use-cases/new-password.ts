@@ -15,15 +15,22 @@ export class NewPasswordUseCase {
         private bcryptService: BcryptService
     ) {}
 
-    async execute(command: NewPasswordRecoveryInputModel): Promise<boolean> {
+    async execute(command: NewPasswordCommand): Promise<boolean> {
+        const {body} = command;
+        console.log('command', body.recoveryCode);//-----------------------
+
         // Проверяем, существует ли пользователь с таким кодом восстановления
-        const user: User | null = await this.userRepository.findUserByCode(command.recoveryCode);
+        const user: User | null = await this.userRepository.findUserByCode(body.recoveryCode);
+
+        console.log('user', user);//-----------------------
         if (!user) return false; // Пользователь не найден или код недействителен
-        if (user.confirmationCode !== command.recoveryCode) return false;
+
+        console.log(user.confirmationCode);//-----------------------
+        if (user.confirmationCode !== body.recoveryCode) return false;
         // Хешируем новый пароль
-        const password = await this.bcryptService.createHashPassword(command.newPassword);
+        const password = await this.bcryptService.createHashPassword(body.newPassword);
         // Обновляем пароль пользователя
-        const result = await this.userRepository.updatePassword(user.id.toString(), password);
+        const result = await this.userRepository.updatePassword(user.id, password);
         if (result) {
             return true;
         } else {

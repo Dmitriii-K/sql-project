@@ -13,10 +13,13 @@ export class ConfirmEmailUseCase {
 
     async execute(command: ConfirmEmailCommand) {
         const {code} = command;
+        console.log(code);//-----------------------
         const user: User | null = await this.userRepository.findUserByCode(code);
+        console.log(user);//-----------------------
         if (!user) {
-            throw new BadRequestException({ errorsMessages: { message: "This code is incorrect", field: "code" } });
+            throw new BadRequestException({ errorsMessages: { message: "This user is incorrect", field: "user" } });
         }
+        console.log(user.isConfirmed);//-----------------------
         if (user.isConfirmed) {
             throw new BadRequestException({ errorsMessages: { message: "This field is verified", field: "code" } });
         }
@@ -26,7 +29,7 @@ export class ConfirmEmailUseCase {
         if (user.expirationDate < new Date().toISOString()) {
             throw new BadRequestException({ errorsMessages: { message: "Expiration date is over", field: "code" } });
         }
-        const result = await this.userRepository.updateConfirmation(user.id.toString());
+        const result = await this.userRepository.updateConfirmation(user.id);
         return result;
     }
 }

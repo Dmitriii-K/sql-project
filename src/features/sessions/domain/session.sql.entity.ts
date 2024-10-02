@@ -1,14 +1,15 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { randomUUID } from 'crypto';
+import { Entity, Column, PrimaryGeneratedColumn, PrimaryColumn } from 'typeorm';
 
 @Entity('Sessions')
 export class Session {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn('uuid')
+    id: string;
 
-    @Column({ type: 'int', nullable: false })
-    user_id: number;
-    // @Column({ type: 'uuid', nullable: false })
-    // user_id: string;
+    // @Column({ type: 'int', nullable: false })
+    // user_id: number;
+    @Column({ type: 'uuid', nullable: false })
+    user_id: string;
 
     @Column({ type: 'uuid', nullable: false })
     device_id: string;
@@ -25,9 +26,10 @@ export class Session {
     @Column({ type: 'varchar', nullable: false })
     ip: string;
 
-    static createSession(userId: number, deviceId: string, iat: string, exp: string, userAgent: string, ip: string): Session {
+    static createSession(userId: string, deviceId: string, iat: string, exp: string, userAgent: string, ip: string): Session {
         const session = new Session();
         
+        session.id = randomUUID();
         session.user_id = userId;
         session.device_id = deviceId;
         session.iat = iat;

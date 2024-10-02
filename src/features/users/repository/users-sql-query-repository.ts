@@ -53,7 +53,7 @@ export class UserQueryRepository {
         return newUser;
     }
 
-    async getUserById(userId: number): Promise<UserViewModel | null> {
+    async getUserById(userId: string): Promise<UserViewModel | null> {
         const query = `
             SELECT * FROM "Users"
             WHERE id = $1`;

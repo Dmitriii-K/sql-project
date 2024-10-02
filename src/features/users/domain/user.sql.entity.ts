@@ -4,8 +4,8 @@ import { add } from "date-fns";
 
 @Entity('Users')
 export class User {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn('uuid')
+    id: string;
 
     @Column({ type: "varchar", nullable: false })
     login: string;
@@ -31,6 +31,7 @@ export class User {
     static createUser(login: string, password: string, email: string): User {
         const user = new User();
         
+        user.id = randomUUID();
         user.login = login;
         user.password = password;
         user.email = email;
@@ -44,6 +45,7 @@ export class User {
     static createUserForRegistration(login: string, password: string, email: string): User {
         const user = new User();
         
+        user.id = randomUUID();
         user.login = login;
         user.password = password;
         user.email = email;

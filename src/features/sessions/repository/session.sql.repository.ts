@@ -16,7 +16,7 @@ export class SessionRepository{
         return result.rowCount === 1;
     }
 
-    async deleteAllSessionsExceptCurrentOne(userId: number, deviceId: string): Promise<boolean> {
+    async deleteAllSessionsExceptCurrentOne(userId: string, deviceId: string): Promise<boolean> {
         const query = `
             DELETE FROM "Sessions"
             WHERE user_id = $1 AND device_id <> $2
@@ -45,11 +45,12 @@ export class SessionRepository{
 
     async createSession(session: Session): Promise<string> {
         const query = `
-            INSERT INTO "Sessions" (user_id, device_id, iat, exp, device_name, ip)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO "Sessions" (id, user_id, device_id, iat, exp, device_name, ip)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING id
         `;
         const result = await this.dataSource.query(query, [
+            session.id,
             session.user_id,
             session.device_id,
             session.iat,
@@ -84,6 +85,6 @@ export class SessionRepository{
             WHERE device_id = $1
         `;
         const result = await this.dataSource.query(query, [deviceId]);
-        return result.rowCount === 1;
+        return !!result[1];
     }
 }

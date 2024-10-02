@@ -1,7 +1,7 @@
 import {CanActivate, ExecutionContext, Injectable, UnauthorizedException} from '@nestjs/common';
 import {Request} from "express";
 import { UserRepository } from 'src/features/users/repository/users-sql-repository';
-import { JwtService } from '../../adapters/jwt.service';
+import { JwtService } from '../../adapters/jwt.pasport-service';
 import { SessionRepository } from 'src/features/sessions/repository/session.sql.repository';
 
 @Injectable()
@@ -20,21 +20,23 @@ export class CheckTokenAuthGuard implements CanActivate {
         throw new UnauthorizedException();
     }
     const token = request.cookies.refreshToken;
-    const payload = this.jwtService.getUserIdByToken(token);
+    const payload =  await this.jwtService.getUserIdByToken(token);
     if(!payload) 
         throw new UnauthorizedException();
     
     const user = await this.userRepository.findUserByMiddleware(payload.userId)
+    // console.log(user); //--------------
     if(user) {
         request.user = {email: user.email, login: user.login, userId: user.id};;
         request.deviceId = payload.deviceId;
 
-        const session = await this.sessionsRepository.findSessionByMiddleware(request.deviceId);
+        const session = await this.sessionsRepository.findSessionByMiddleware(request.deviceId!);
         const dateIat = new Date(payload.iat * 1000).toISOString();
         if(session?.iat !== dateIat) {
             throw new UnauthorizedException();
         }
+        return true;
     }
-    return true;
+    throw new UnauthorizedException();
 }
 }

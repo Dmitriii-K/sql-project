@@ -5,7 +5,7 @@ import { SessionRepository } from "../repository/session.sql.repository";
 export class SessionsService {
     constructor(protected sessionRepository: SessionRepository) {}
 
-    async deleteAllSessionsExceptCurrentOne(userId: number, device_id: string) {
+    async deleteAllSessionsExceptCurrentOne(userId: string, device_id: string) {
         const result = await this.sessionRepository.deleteAllSessionsExceptCurrentOne(userId, device_id);
         return result;
     }

@@ -1,6 +1,6 @@
 import { Global, Module } from "@nestjs/common";
 import { EmailService } from "./sendEmail";
-import { JwtService } from "./jwt.service";
+import { JwtService } from "./jwt.pasport-service";
 import { BcryptService } from "./bcrypt";
 
 @Global()

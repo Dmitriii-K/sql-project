@@ -9,11 +9,12 @@ export class UserRepository{
 
     async insertUser(user: User): Promise<string> {
         const query = `
-            INSERT INTO "Users" (login, password, email, createdAt, confirmationCode, expirationDate, isConfirmed)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            INSERT INTO "Users" (id, login, password, email, "createdAt", "confirmationCode", "expirationDate", "isConfirmed")
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING id
         `;
         const result = await this.dataSource.query(query, [
+            user.id,
             user.login,
             user.password,
             user.email,
@@ -25,7 +26,7 @@ export class UserRepository{
         return result[0].id;
     }
 
-    async findUserById(userId: number): Promise<User | null> {
+    async findUserById(userId: string): Promise<User | null> {
         const query = `
             SELECT * FROM "Users"
             WHERE id = $1
@@ -70,21 +71,20 @@ export class UserRepository{
         return result.length ? result[0] : null;
     }
 
-    async deleteUser(userId: number): Promise<boolean> {
+    async deleteUser(userId: string): Promise<boolean> {
         // console.log('userId', userId)//---------
         const query = `
             DELETE FROM "Users"
             WHERE id = $1
         `;
         const result = await this.dataSource.query(query, [userId]);
-        console.log('result', result)//-----------
-        return result.rowCount > 0;
+        return !!result[1];
     }
 
-    async updateCode(userId: string, newCode: string): Promise<boolean> {
+    async updateCode(newCode: string, userId: string): Promise<boolean> {
         const query = `
             UPDATE "Users"
-            SET confirmationCode = $1
+            SET "confirmationCode" = $1
             WHERE id = $2
         `;
         const result = await this.dataSource.query(query, [newCode, userId]);
@@ -98,7 +98,8 @@ export class UserRepository{
             WHERE id = $2
         `;
         const result = await this.dataSource.query(query, [pass, userId]);
-        return result.rowCount > 0;
+        console.log(result);//---------------
+        return !!result[1];
     }
 
     async checkUserByRegistration(login: string, email: string): Promise<User | null> {
@@ -121,11 +122,12 @@ export class UserRepository{
 
     async createUser(user: User): Promise<string> {
         const query = `
-            INSERT INTO "Users" (login, password, email, createdAt, confirmationCode, expirationDate, isConfirmed)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            INSERT INTO "Users" (id, login, password, email, "createdAt", "confirmationCode", "expirationDate", "isConfirmed")
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING id
         `;
         const result = await this.dataSource.query(query, [
+            user.id,
             user.login,
             user.password,
             user.email,
@@ -140,9 +142,10 @@ export class UserRepository{
     async findUserByCode(code: string): Promise<User | null> {
         const query = `
             SELECT * FROM "Users"
-            WHERE confirmationCode = $1
+            WHERE "confirmationCode" = $1
         `;
         const result = await this.dataSource.query(query, [code]);
+        // console.log('result', result);//-----------------------
         return result.length ? result[0] : null;
     }
 
@@ -167,10 +170,10 @@ export class UserRepository{
     async updateConfirmation(userId: string): Promise<boolean> {
         const query = `
             UPDATE "Users"
-            SET isConfirmed = true
+            SET "isConfirmed" = true
             WHERE id = $1
         `;
         const result = await this.dataSource.query(query, [userId]);
-        return result.rowCount > 0;
+        return !!result[1];
     }
 }

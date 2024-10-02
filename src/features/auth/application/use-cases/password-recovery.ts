@@ -25,7 +25,7 @@ export class PasswordRecoveryUseCase {
         } // Пользователь не найден
         // Генерируем код восстановления
         const recoveryCode = randomUUID();
-        await this.userRepository.updateCode(user.id.toString(), recoveryCode);
+        await this.userRepository.updateCode(recoveryCode, user.id);
         await this.emailService.sendPasswordRecoveryMail(mail, recoveryCode);
         return true;
     }
