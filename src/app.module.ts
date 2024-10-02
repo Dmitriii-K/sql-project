@@ -2,36 +2,20 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-// import { CommentController } from './features/comments/api/comment.controller';
-// import { CommentQueryRepository } from './features/comments/repository/comment.query-repository';
-// import { CommentRepository } from './features/comments/repository/comment.repository';
-// import { CommentService } from './features/comments/application/comment.service';
-// import { Comment, CommentSchema } from './features/comments/domain/comment.entity';
-// import { Blog, BlogSchema } from './features/blogs/domain/blog.entity';
-// import { BlogService } from './features/blogs/application/blog.service';
-// import { BlogQueryRepository } from './features/blogs/repository/blog.query-repository';
-// import { BlogRepository } from './features/blogs/repository/blog.repository';
-// import { Post, PostSchema } from './features/posts/domain/post.entity';
-// import { PostService } from './features/posts/application/post.service';
-// import { PostRepository } from './features/posts/repository/post.repository';
-// import { PostQueryRepository } from './features/posts/repository/post.query-repository';
-// import { BlogController } from './features/blogs/api/blog.controller';
-// import { PostController } from './features/posts/api/post.controller';
 import { LoginIsExistConstraint } from './infrastructure/decorators/validate/login-is-exist.decorator';
 import { EmailIsExistConstraint } from './infrastructure/decorators/validate/email-is-exist.decorator';;
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
-// import { Like, LikesSchema } from './features/likes/domain/likes.entity';
-// import { BlogIsExistConstraint } from './infrastructure/decorators/validate/blog-is-exist.decorator';
+import { BlogIsExistConstraint } from './infrastructure/decorators/validate/blog-is-exist.decorator';
 import configuration, { ConfigurationType } from './settings/configuration';
 import { validate } from './settings/env/configuration-validation';
 // import { UpdatePostLikeUseCase } from './features/posts/application/use-cases/update-post-like';
 // import { LikeStatusUseCase } from './features/comments/application/use-cases/like-status';
 // import { CreateCommentByPostUseCase } from './features/posts/application/use-cases/create-comment-by-post';
-// import { CreatePostUseCase } from './features/posts/application/use-cases/create-post';
-// import { CreatePostForBlogUseCase } from './features/blogs/application/use-cases/create-post-for-blog';
+import { CreatePostUseCase } from './features/bloggers_platform/posts/application/use-cases/create-post';
+import { CreatePostForBlogUseCase } from './features/bloggers_platform/blogs/application/use-cases/create-post-for-blog';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UsersModule } from './features/users/users.module';
 import { SessionsModule } from './features/sessions/sessions.module';
@@ -48,6 +32,7 @@ import { ConfirmEmailUseCase } from './features/auth/application/use-cases/confi
 import { AdaptersModule } from './infrastructure/adapters/adapters.module';
 import { CoreModule } from './infrastructure/core.module';
 import { TestingsModule } from './features/testing/testings.module';
+import { BloggersPlatformModule } from './features/bloggers_platform/bloggersPlatform.module';
 
 const useCases = [
   CreateUserUseCase, 
@@ -62,14 +47,13 @@ const useCases = [
   // LikeStatusUseCase, 
   // UpdatePostLikeUseCase,
   // CreateCommentByPostUseCase,
-  // CreatePostUseCase,
-  // CreatePostForBlogUseCase
+  CreatePostUseCase,
+  CreatePostForBlogUseCase
 ];
-const modules = [TestingsModule, UsersModule, AuthModule, SessionsModule, AdaptersModule, CoreModule];// импортировать! 
+const modules = [TestingsModule, UsersModule, AuthModule, SessionsModule, AdaptersModule, CoreModule, BloggersPlatformModule];// импортировать! 
 
 @Module({
   imports: [
-    CqrsModule,//-
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
@@ -135,9 +119,6 @@ const modules = [TestingsModule, UsersModule, AuthModule, SessionsModule, Adapte
   ],
   controllers: [
     AppController,
-    // CommentController,
-    // BlogController,
-    // PostController,
   ],
   providers: [
     // {
@@ -145,10 +126,7 @@ const modules = [TestingsModule, UsersModule, AuthModule, SessionsModule, Adapte
     //   useClass: UserService
     // },
     AppService,
-    LoginIsExistConstraint, EmailIsExistConstraint,/* BlogIsExistConstraint,*/
-    // CommentService, CommentQueryRepository, CommentRepository,
-    // BlogService, BlogRepository, BlogQueryRepository,
-    // PostService, PostRepository, PostQueryRepository,
+    LoginIsExistConstraint, EmailIsExistConstraint, BlogIsExistConstraint,
     ...useCases
   ]
 })
