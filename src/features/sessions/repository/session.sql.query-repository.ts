@@ -16,9 +16,10 @@ export class SessionsQueryRepository{
 
         const query = `
             SELECT * FROM "Sessions"
-            WHERE user_id = $1 AND exp >= $2
+            WHERE user_id = $1 
+            --AND exp >= $2
         `;
-        const sessions = await this.dataSource.query(query, [userId, currentTime]);
+        const sessions = await this.dataSource.query(query, [userId/*, currentTime*/]);
         return sessions.map(this.mapSession);
     }
 

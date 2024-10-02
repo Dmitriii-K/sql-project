@@ -17,15 +17,15 @@ export class NewPasswordUseCase {
 
     async execute(command: NewPasswordCommand): Promise<boolean> {
         const {body} = command;
-        console.log('command', body.recoveryCode);//-----------------------
+        // console.log('command', body.recoveryCode);//-----------------------
 
         // Проверяем, существует ли пользователь с таким кодом восстановления
         const user: User | null = await this.userRepository.findUserByCode(body.recoveryCode);
 
-        console.log('user', user);//-----------------------
+        // console.log('user', user);//-----------------------
         if (!user) return false; // Пользователь не найден или код недействителен
 
-        console.log(user.confirmationCode);//-----------------------
+        // console.log(user.confirmationCode);//-----------------------
         if (user.confirmationCode !== body.recoveryCode) return false;
         // Хешируем новый пароль
         const password = await this.bcryptService.createHashPassword(body.newPassword);

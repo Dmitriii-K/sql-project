@@ -18,8 +18,8 @@ export class UserQueryRepository {
         const { pageNumber, pageSize, sortBy, sortDirection, searchLoginTerm, searchEmailTerm } = userPagination(query);
     
         // Формируем фильтры
-        const emailFilter = searchEmailTerm ? `"email" LIKE '%${searchEmailTerm}%'` : null;
-        const loginFilter = searchLoginTerm ? `"login" LIKE '%${searchLoginTerm}%'` : null;
+        const emailFilter = searchEmailTerm ? `"email" ILIKE '%${searchEmailTerm}%'` : null;
+        const loginFilter = searchLoginTerm ? `"login" ILIKE '%${searchLoginTerm}%'` : null;
         const filters = [emailFilter, loginFilter]
             .filter(Boolean)
             .join(" OR ");
@@ -27,17 +27,17 @@ export class UserQueryRepository {
         // Формируем SQL запрос для получения пользователей
         const queryUsers = `
             SELECT * FROM "Users"
-            WHERE ${filters ? `(${filters})` : '1=1'}
-            ORDER BY ${sortBy} ${sortDirection.toUpperCase()}
+            ${filters ? `WHERE ${filters}`: ""}
+            ORDER BY "${sortBy}" ${sortDirection.toUpperCase()}
             LIMIT ${pageSize} OFFSET ${(pageNumber - 1) * pageSize}
         `;
-    
+        // console.log(queryUsers);//--------------
         const users = await this.dataSource.query(queryUsers);
-    
+        // console.log(users);//--------------
         // Получаем общее количество пользователей
         const queryTotalCount = `
             SELECT COUNT(*) FROM "Users"
-            WHERE ${filters ? `(${filters})` : '1=1'}
+            ${filters ? `WHERE ${filters}`: ""}
         `;
         const totalCountResult = await this.dataSource.query(queryTotalCount);
         const totalCount = parseInt(totalCountResult[0].count, 10);

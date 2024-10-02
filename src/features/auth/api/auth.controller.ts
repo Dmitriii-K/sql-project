@@ -56,7 +56,7 @@ export class AuthController{
         await this.commandBus.execute(new PasswordRecoveryCommand(body.email));
     }
 
-    @Post('new-password')
+    @Post('new-password')//------------------
     @HttpCode(204)
     async authNewPassword(@Body() body: NewPasswordRecoveryInputModel) {
         // const newPassword = await this.authService.newPassword(body);

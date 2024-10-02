@@ -13,7 +13,7 @@ export class SessionRepository{
             WHERE device_id = $1
         `;
         const result = await this.dataSource.query(query, [deviceId]);
-        return result.rowCount === 1;
+        return !!result[1];
     }
 
     async deleteAllSessionsExceptCurrentOne(userId: string, deviceId: string): Promise<boolean> {

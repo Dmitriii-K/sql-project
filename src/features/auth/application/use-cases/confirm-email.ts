@@ -13,13 +13,13 @@ export class ConfirmEmailUseCase {
 
     async execute(command: ConfirmEmailCommand) {
         const {code} = command;
-        console.log(code);//-----------------------
+        // console.log(code);//-----------------------
         const user: User | null = await this.userRepository.findUserByCode(code);
-        console.log(user);//-----------------------
+        // console.log(user);//-----------------------
         if (!user) {
-            throw new BadRequestException({ errorsMessages: { message: "This user is incorrect", field: "user" } });
+            throw new BadRequestException({ errorsMessages: { message: "This user is incorrect", field: "code" } });
         }
-        console.log(user.isConfirmed);//-----------------------
+        // console.log(user.isConfirmed);//-----------------------
         if (user.isConfirmed) {
             throw new BadRequestException({ errorsMessages: { message: "This field is verified", field: "code" } });
         }
