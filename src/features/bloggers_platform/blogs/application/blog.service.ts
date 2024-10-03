@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { BlogRepository } from "../repository/blog.repository";
+import { BlogRepository } from "../repository/blog.sql.repository";
 import { BlogInputModel } from "../api/models/input.model";
-import { Blog } from "../domain/blog.entity";
+import { Blog } from "../domain/blog.sql.entity";
 
 
 @Injectable()

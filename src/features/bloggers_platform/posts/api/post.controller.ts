@@ -1,9 +1,9 @@
 import { Body, Controller, Delete, Get, HttpCode, NotFoundException, Param, Post, Put, Query, Req, Res, UnauthorizedException, UseGuards } from "@nestjs/common";
 import { PostService } from "../application/post.service";
-import { PostQueryRepository } from "../repository/post.query-repository";
+import { PostQueryRepository } from "../repository/post.sql.query-repository";
 import { TypePostHalper } from "src/base/types/post.types";
 import { PostInputModel } from "./models/input.model";
-import { PostRepository } from "../repository/post.repository";
+import { PostRepository } from "../repository/post.sql.repository";
 import { LikeStatusDto } from "src/features/bloggers_platform/likes/api/models/input.model";
 import { Request, Response } from "express";
 import { CommentInputModel } from "src/features/bloggers_platform/comments/api/models/input.model";
