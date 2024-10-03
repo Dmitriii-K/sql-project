@@ -1,8 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { PostRepository } from "../repository/post.repository";
+import { PostRepository } from "../repository/post.sql.repository";
 import { PostInputModel } from "../api/models/input.model";
-import { Post } from "../domain/post.entity";
-import {WithId} from "mongodb"
+import { Post } from "../domain/post.sql.entity";
 
 @Injectable()
 export class PostService {
@@ -19,7 +18,7 @@ export class PostService {
     async getPostById(postId: string) {
         return this.postRepository.findPostById(postId);
     }
-    async findPostById(postId: string): Promise<WithId<Post> | null>  {
+    async findPostById(postId: string): Promise<Post | null>  {
         return this.postRepository.findPostById(postId);
     }
 }

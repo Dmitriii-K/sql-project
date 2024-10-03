@@ -8,10 +8,10 @@ export class Session {
 
     // @Column({ type: 'int', nullable: false })
     // user_id: number;
-    @Column({ type: 'uuid', nullable: false })
+    @Column({ type: 'varchar', nullable: false })
     user_id: string;
 
-    @Column({ type: 'uuid', nullable: false })
+    @Column({ type: 'varchar', nullable: false })
     device_id: string;
 
     @Column({ type: 'varchar', nullable: false })

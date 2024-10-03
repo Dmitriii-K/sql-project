@@ -6,7 +6,7 @@ import {
     ValidatorConstraint,
     ValidatorConstraintInterface,
 } from 'class-validator';
-import { BlogRepository } from 'src/features/bloggers_platform/blogs/repository/blog.repository';
+import { BlogRepository } from 'src/features/bloggers_platform/blogs/repository/blog.sql.repository';
 
 // Обязательна регистрация в ioc
 @ValidatorConstraint({ name: 'BlogIsExist', async: true })

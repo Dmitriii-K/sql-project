@@ -1,10 +1,10 @@
 import { Body, Controller, Delete, Get, HttpCode, NotFoundException, Param, Post, Put, Query, Req, Res, UseGuards } from "@nestjs/common";
 import { BlogService } from "../application/blog.service";
-import { BlogQueryRepository } from "../repository/blog.query-repository";
+import { BlogQueryRepository } from "../repository/blog.sql.query-repository";
 import { TypeBlogHalper, TypePostForBlogHalper } from "src/base/types/blog.types";
 import { PaginatorBlogViewModel } from "./models/output.model";
 import { BlogInputModel, BlogPostInputModel } from "./models/input.model";
-import { BlogRepository } from "../repository/blog.repository";
+import { BlogRepository } from "../repository/blog.sql.repository";
 import { BlogExistsPipe } from "src/infrastructure/pipes/blogExists.pipe";
 import { Request, Response } from "express";
 import { BasicAuthGuard } from "src/infrastructure/guards/basic.guard";
@@ -47,7 +47,7 @@ export class BlogController {
         @Res({ passthrough: true }) res: Response,
         @Req() req: Request) {
             const userId: string | null = req.user ? req.user.userId : null;
-            const posts = await this.blogQueryRepository.getPostFofBlog(query, id, userId);
+            const posts = await this.blogQueryRepository.getPostForBlog(query, id, userId);
             if(!posts) {
                 throw new NotFoundException();
             }
