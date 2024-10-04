@@ -22,14 +22,14 @@ export class BlogController {
         private commandBus: CommandBus
     ) {}
 
-    @Get()//---- sa???
+    @Get()//-----------------
     async getAllBlogs(@Query() query: TypeBlogHalper) {
         const blogs: PaginatorBlogViewModel = await this.blogQueryRepository.getAllBlogs(query);
         return blogs;
     }
 
     @UseGuards(BasicAuthGuard)
-    @Post()//----
+    @Post()//--------------------
     async createBlog(@Body() body: BlogInputModel) {
         const createResult = await this.blogService.createBlog(body);
         if (!createResult) {
@@ -40,7 +40,7 @@ export class BlogController {
     }
 
     @UseGuards(SoftAuthGuard)
-    @Get(':id/posts')//----
+    @Get(':id/posts')
     async getPostForBlog(
         @Query() query: TypePostForBlogHalper,
         @Param('id', BlogExistsPipe) id: string,
@@ -55,7 +55,7 @@ export class BlogController {
     }
 
     @UseGuards(BasicAuthGuard)
-    @Post(':id/posts')//----
+    @Post(':id/posts')
     async createPostForBlog(
         @Param('id') id: string,
         @Body() body: BlogPostInputModel) {
@@ -69,7 +69,7 @@ export class BlogController {
             return newPostForBlog;
     }
 
-    @Get(':id')//----
+    @Get(':id')//----------------
     async getBlogById(@Param('id') id: string) {
         const blogResult = await this.blogQueryRepository.getBlogById(id);
         if (!blogResult) {
@@ -79,7 +79,7 @@ export class BlogController {
     }
 
     @UseGuards(BasicAuthGuard)
-    @Put(':id')//----
+    @Put(':id')//--------------------
     @HttpCode(204)
     async updateBlog(
         @Param('id') id: string,
@@ -93,7 +93,7 @@ export class BlogController {
     }
 
     @UseGuards(BasicAuthGuard)
-    @Delete(':id')//----
+    @Delete(':id')//-----------------
     @HttpCode(204)
     async deleteBlog(@Param('id') id: string) {
         const deleteResult = await this.blogService.deleteBlog(id);
@@ -102,28 +102,30 @@ export class BlogController {
         }
     }
 
-    // @UseGuards(BasicAuthGuard)
-    // @Put(':blogId/posts/:postId')//----
-    // @HttpCode(204)
-    // async updatePostByIdForBlogId(
-    //     @Param('id') id: string, // blogId, postId
-    //     @Body() body: BlogPostInputModel) {
-    //         const findBlog = await this.blogService.findBlogById(id);
-    //         if (!findBlog) {
-    //             throw new NotFoundException();
-    //         }
-    //         const updateBlogResult = await this.blogService.updatePostByIdForBlogId(blogId, postId, body);
-    //         return updateBlogResult;
-    // }
+    @UseGuards(BasicAuthGuard)
+    @Put(':blogId/posts/:postId')
+    @HttpCode(204)
+    async updatePostByIdForBlogId(
+        @Param('blogId') blogId: string,
+        @Param('postId') postId: string, 
+        @Body() body: BlogPostInputModel) {
+            const findBlog = await this.blogService.findBlogById(blogId);
+            if (!findBlog) {
+                throw new NotFoundException();
+            }
+            const updateBlogResult = await this.blogService.updatePostByIdForBlogId(blogId, postId, body);
+            return updateBlogResult;
+    }
 
-    // @UseGuards(BasicAuthGuard)
-    // @Delete(':blogId/posts/:postId')//----
-    // @HttpCode(204)
-    // async deletePostByIdForBlogId(
-    //     @Param('id') id: string) { // blogId, postId
-    //     const deleteResult = await this.blogService.deletePostByIdForBlogId(blogId, postId);
-    //     if (!deleteResult) {
-    //     throw new NotFoundException();
-    //     }
-    // }
+    @UseGuards(BasicAuthGuard)
+    @Delete(':blogId/posts/:postId')
+    @HttpCode(204)
+    async deletePostByIdForBlogId(
+        @Param('blogId') blogId: string,
+        @Param('postId') postId: string) {
+        const deleteResult = await this.blogService.deletePostByIdForBlogId(blogId, postId);
+        if (!deleteResult) {
+        throw new NotFoundException();
+        }
+    }
 }

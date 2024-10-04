@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { Blog } from '../domain/blog.sql.entity';
-import { BlogInputModel } from '../api/models/input.model';
+import { BlogInputModel, BlogPostInputModel } from '../api/models/input.model';
 
 @Injectable()
 export class BlogRepository {
@@ -46,6 +46,27 @@ export class BlogRepository {
             updateContent.websiteUrl,
             blogId
         ]);
+        return !!result[1];
+    }
+
+    async updatePostForBlog(blogId: string, updateContent: BlogPostInputModel): Promise<boolean> {
+        const query = `
+            UPDATE "Blogs"
+            SET title = $1, "shortDescription" = $2, content = $3
+            WHERE id = $4
+        `;
+        const result = await this.dataSource.query(query, [
+            updateContent.title,
+            updateContent.shortDescription,
+            updateContent.content,
+            blogId
+        ]);
+        return !!result[1];
+    }
+
+    async deletePostForBlog(blogId: string): Promise<boolean> {
+        const query = `DELETE FROM "Blogs" WHERE id = $1`;
+        const result = await this.dataSource.query(query, [blogId]);
         return !!result[1];
     }
 

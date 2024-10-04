@@ -16,7 +16,6 @@ description: string;
 websiteUrl: string;
 
 // @Column({ type: 'timestamp', nullable: false, default: () => 'CURRENT_TIMESTAMP' })
-// createdAt: Date;
 @CreateDateColumn()
 createdAt: Date;
 
@@ -31,7 +30,8 @@ isMembership: boolean;
         blog.description = description;
         blog.websiteUrl = websiteUrl;
         blog.createdAt = new Date();
-        blog.isMembership = false;
+        blog.isMembership = true;
+        
         return blog;
     }
 }
