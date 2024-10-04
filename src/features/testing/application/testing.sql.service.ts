@@ -10,11 +10,27 @@ export class TestingService {
         const truncateUser = `
         TRUNCATE TABLE "Users" RESTART IDENTITY CASCADE
     `;
-    const truncateSessions = `
+        const truncateSessions = `
         TRUNCATE TABLE "Sessions" RESTART IDENTITY CASCADE
+    `;
+        const truncateBlogs = `
+        TRUNCATE TABLE "Blogs" RESTART IDENTITY CASCADE
+    `;
+        const truncatePosts = `
+        TRUNCATE TABLE "Posts" RESTART IDENTITY CASCADE
+    `;
+        const truncatePostsLikes = `
+        TRUNCATE TABLE "PostsLikes" RESTART IDENTITY CASCADE
+    `;
+        const truncateExtendedLikesInfo = `
+        TRUNCATE TABLE "ExtendedLikesInfo" RESTART IDENTITY CASCADE
     `;
         await this.dataSource.query(truncateUser);
         await this.dataSource.query(truncateSessions);
+        await this.dataSource.query(truncateBlogs);
+        await this.dataSource.query(truncatePosts);
+        await this.dataSource.query(truncatePostsLikes);
+        await this.dataSource.query(truncateExtendedLikesInfo);
         console.log('All data of tables is deleted');
     }
 }

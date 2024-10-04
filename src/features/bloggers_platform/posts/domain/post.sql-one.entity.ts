@@ -6,10 +6,11 @@ class NewestLikes {
     @PrimaryColumn('uuid')
     id: string;
 
+    // @Column({ type: 'timestamp', nullable: false, default: () => 'CURRENT_TIMESTAMP' })
     @CreateDateColumn()
     addedAt: Date;
 
-    @Column({ type: 'uuid', nullable: false })
+    @Column({ type: 'varchar', nullable: false })
     userId: string;
 
     @Column({ type: 'varchar', nullable: false })
@@ -34,25 +35,26 @@ class ExtendedLikesInfo {
 @Entity()
 export class Post {
     @PrimaryColumn('uuid')
-    id: string;
+    id: string;//
 
     @Column({ type: 'varchar', nullable: false })
-    title: string;
+    title: string;//
 
     @Column({ type: 'text', nullable: false })
-    shortDescription: string;
+    shortDescription: string;//
 
     @Column({ type: 'text', nullable: false })
-    content: string;
+    content: string;//
 
     @Column({ type: 'uuid', nullable: false })
-    blogId: string;
+    blogId: string;//
 
     @Column({ type: 'varchar', nullable: false })
     blogName: string;
 
+    // @Column({ type: 'timestamp', nullable: false, default: () => 'CURRENT_TIMESTAMP' })
     @CreateDateColumn()
-    createdAt: Date;
+    createdAt: Date;//
 
     @Column(() => ExtendedLikesInfo)
     extendedLikesInfo: ExtendedLikesInfo;
@@ -74,21 +76,4 @@ export class Post {
 
         return post;
     }
-
-    // static createPost(title: string, shortDescription: string, content: string, blogId: string, blogName: string): Post {
-    //     const post = new this();
-        
-    //     post.title = title;
-    //     post.shortDescription = shortDescription;
-    //     post.content = content;
-    //     post.blogId = blogId;
-    //     post.blogName = blogName;
-    //     post.createdAt = new Date().toISOString();
-    //     post.extendedLikesInfo = {
-    //         likesCount: 0,
-    //         dislikesCount: 0,
-    //         newestLikes: []
-    //     };
-    //     return post;
-    // }
 }
