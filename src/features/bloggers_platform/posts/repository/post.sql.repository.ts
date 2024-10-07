@@ -15,8 +15,8 @@ export class PostRepository {
 
     async insertPost(post: Post): Promise<string> {
         const query = `
-            INSERT INTO "Posts" (id, title, "shortDescription", content, "blogId", "blogName", "createdAt", "extendedLikesInfo")
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            INSERT INTO "Posts" (id, title, "shortDescription", content, "blogId", "createdAt")
+            VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING id
         `;
         const result = await this.dataSource.query(query, [
@@ -25,9 +25,7 @@ export class PostRepository {
             post.shortDescription,
             post.content,
             post.blogId,
-            post.blogName,
-            post.createdAt,
-            post.extendedLikesInfo
+            post.createdAt
         ]);
         return result[0].id;
     }
@@ -66,8 +64,8 @@ export class PostRepository {
 
     async insertPostForBlog(post: Post): Promise<string> {
         const query = `
-            INSERT INTO "Posts" (id, title, "shortDescription", content, "blogId", "blogName", "createdAt", "extendedLikesInfo")
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            INSERT INTO "Posts" (id, title, "shortDescription", content, "blogId", "createdAt")
+            VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING id
         `;
         const result = await this.dataSource.query(query, [
@@ -76,9 +74,7 @@ export class PostRepository {
             post.shortDescription,
             post.content,
             post.blogId,
-            post.blogName,
-            post.createdAt,
-            post.extendedLikesInfo
+            post.createdAt
         ]);
         return result[0].id;
     }

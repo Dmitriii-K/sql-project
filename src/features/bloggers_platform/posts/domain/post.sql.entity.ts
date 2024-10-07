@@ -2,36 +2,6 @@ import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, PrimaryColumn, Crea
 import { randomUUID } from 'crypto';
 
 @Entity()
-class NewestLikes {
-    @PrimaryColumn('uuid')
-    id: string;
-
-    @CreateDateColumn()
-    addedAt: Date;
-
-    @Column({ type: 'uuid', nullable: false })
-    userId: string;
-
-    @Column({ type: 'varchar', nullable: false })
-    login: string;
-}
-
-@Entity()
-class ExtendedLikesInfo {
-    @PrimaryColumn('uuid')
-    id: string;
-
-    @Column({ type: 'int', nullable: false, default: 0 })
-    likesCount: number;
-
-    @Column({ type: 'int', nullable: false, default: 0 })
-    dislikesCount: number;
-
-    @Column(() => NewestLikes)
-    newestLikes: NewestLikes[];
-}
-
-@Entity()
 export class Post {
     @PrimaryColumn('uuid')
     id: string;
@@ -48,14 +18,8 @@ export class Post {
     @Column({ type: 'uuid', nullable: false })
     blogId: string;
 
-    @Column({ type: 'varchar', nullable: false })
-    blogName: string;
-
     @CreateDateColumn()
     createdAt: Date;
-
-    @Column(() => ExtendedLikesInfo)
-    extendedLikesInfo: ExtendedLikesInfo;
 
     static createPost(title: string, shortDescription: string, content: string, blogId: string, blogName: string): Post {
         const post = new Post();
@@ -65,12 +29,7 @@ export class Post {
         post.shortDescription = shortDescription;
         post.content = content;
         post.blogId = blogId;
-        post.blogName = blogName;
         post.createdAt = new Date();
-        post.extendedLikesInfo = new ExtendedLikesInfo();
-        post.extendedLikesInfo.likesCount = 0;
-        post.extendedLikesInfo.dislikesCount = 0;
-        post.extendedLikesInfo.newestLikes = [];
 
         return post;
     }
