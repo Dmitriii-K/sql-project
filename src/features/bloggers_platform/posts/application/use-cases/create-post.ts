@@ -26,7 +26,7 @@ export class CreatePostUseCase {
         if (!findBlogNameForId) {
             throw new BadRequestException({ errorsMessages: { message: "This blog is incorrect", field: "blog" } });
         }
-        const newPost: Post = Post.createPost(body.title, body.shortDescription, body.content, body.blogId, findBlogNameForId.name);
+        const newPost: Post = Post.createPost(body.title, body.shortDescription, body.content, body.blogId);
         return this.postRepository.insertPost(newPost);
     }
 }

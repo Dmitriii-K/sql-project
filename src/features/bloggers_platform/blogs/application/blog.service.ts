@@ -31,8 +31,8 @@ export class BlogService {
         }
     }
 
-    async updatePostByIdForBlogId(blogId: string, postId: string,  updateContent: BlogPostInputModel) {
-        const updateResult = await this.blogRepository.updatePostForBlog(blogId, updateContent);
+    async updatePostByIdForBlogId(postId: string,  updateContent: BlogPostInputModel) {
+        const updateResult = await this.blogRepository.updatePostForBlog(postId, updateContent);
         if (updateResult) {
             return updateResult;
         } else {
@@ -40,8 +40,8 @@ export class BlogService {
         }
     }
 
-    async deletePostByIdForBlogId(blogId: string, postId: string) {
-        const deleteResult = await this.blogRepository.deleteBlog(blogId);
+    async deletePostByIdForBlogId(postId: string) {
+        const deleteResult = await this.blogRepository.deleteBlog(postId);
         if (deleteResult) {
             return true;
         } else {

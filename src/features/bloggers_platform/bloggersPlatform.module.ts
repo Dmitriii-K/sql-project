@@ -14,6 +14,7 @@ import { PostRepository } from "./posts/repository/post.sql.repository";
 import { PostQueryRepository } from "./posts/repository/post.sql.query-repository";
 import { CoreModule } from "src/infrastructure/core.module";
 import { UsersModule } from "../users/users.module";
+import { BlogControllerSa } from "./blogs/api/blog.controller-sa";
 
 @Module({
     imports: [
@@ -21,7 +22,7 @@ import { UsersModule } from "../users/users.module";
         UsersModule,
         // CoreModule,
     ],
-    controllers: [BlogController, /*CommentController,*/ PostController],
+    controllers: [BlogController, BlogControllerSa, /*CommentController,*/ PostController],
     providers: [BlogService, BlogRepository, BlogQueryRepository, /*CommentService, CommentRepository, CommentQueryRepository, */PostService, PostRepository, PostQueryRepository],
     exports: [BlogRepository, PostRepository, /*CommentRepository,*/ BlogRepository]
 })
