@@ -21,7 +21,7 @@ export class Post {
     @CreateDateColumn()
     createdAt: Date;
 
-    static createPost(title: string, shortDescription: string, content: string, blogId: string, blogName: string): Post {
+    static createPost(title: string, shortDescription: string, content: string, blogId: string): Post {
         const post = new Post();
         
         post.id = randomUUID();

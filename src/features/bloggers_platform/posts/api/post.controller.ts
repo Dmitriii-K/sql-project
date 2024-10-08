@@ -78,7 +78,7 @@ export class PostController {
     // }
 
     @UseGuards(SoftAuthGuard)
-    @Get()
+    @Get()//------------------------
     async getPosts(
         @Query() query: TypePostHalper,
         @Res({ passthrough: true }) res: Response,
@@ -105,7 +105,7 @@ export class PostController {
     // }
 
     @UseGuards(SoftAuthGuard)
-    @Get(':id')
+    @Get(':id')//-------------------------
     async getPostById(
         @Param('id') id: string,
         @Res({ passthrough: true }) res: Response,
@@ -124,7 +124,7 @@ export class PostController {
     // async updatePost(
     //     @Param('id') id: string,
     //     @Body() body: PostInputModel) {
-    //         const findPost = await this.postService.findPostById(id);
+    //         const findPost = await this.postService.getPostById(id);
     //         if (!findPost) {
     //             throw new NotFoundException();
     //         }

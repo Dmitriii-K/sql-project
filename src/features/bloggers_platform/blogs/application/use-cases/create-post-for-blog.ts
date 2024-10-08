@@ -6,8 +6,7 @@ import { Post } from "src/features/bloggers_platform/posts/domain/post.sql.entit
 export class CreatePostForBlogCommand {
     constructor(
         public blogId: string,
-        public body: BlogPostInputModel,
-        public name: string
+        public body: BlogPostInputModel
         ) {}
 }
 
@@ -16,8 +15,8 @@ export class CreatePostForBlogUseCase {
     constructor(private postRepository: PostRepository) {}
 
     async execute(command: CreatePostForBlogCommand) {
-        const {blogId, body, name} = command;
-        const newPost: Post = Post.createPost(body.title, body.shortDescription, body.content, blogId, name);
+        const {blogId, body} = command;
+        const newPost: Post = Post.createPost(body.title, body.shortDescription, body.content, blogId);
         return this.postRepository.insertPostForBlog(newPost);
     }
 }

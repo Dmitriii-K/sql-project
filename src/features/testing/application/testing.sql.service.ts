@@ -22,15 +22,11 @@ export class TestingService {
         const truncatePostsLikes = `
         TRUNCATE TABLE "PostsLikes" RESTART IDENTITY CASCADE
     `;
-        const truncateExtendedLikesInfo = `
-        TRUNCATE TABLE "ExtendedLikesInfo" RESTART IDENTITY CASCADE
-    `;
         await this.dataSource.query(truncateUser);
         await this.dataSource.query(truncateSessions);
         await this.dataSource.query(truncateBlogs);
         await this.dataSource.query(truncatePosts);
         await this.dataSource.query(truncatePostsLikes);
-        await this.dataSource.query(truncateExtendedLikesInfo);
         console.log('All data of tables is deleted');
     }
 }

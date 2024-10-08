@@ -30,7 +30,7 @@ isMembership: boolean;
         blog.description = description;
         blog.websiteUrl = websiteUrl;
         blog.createdAt = new Date();
-        blog.isMembership = true;
+        blog.isMembership = false;
         
         return blog;
     }
