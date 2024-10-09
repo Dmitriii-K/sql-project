@@ -70,7 +70,7 @@ const modules = [TestingsModule, UsersModule, AuthModule, SessionsModule, Adapte
             host: 'localhost',
             port: 5432,
             username: 'postgres',
-            password: 'dk',// скрыть через useFactory???
+            password: 'dk',// скрыть через useFactory
             database: 'newDBforBloggersPlatform',
             autoLoadEntities: true,
             synchronize: true,
