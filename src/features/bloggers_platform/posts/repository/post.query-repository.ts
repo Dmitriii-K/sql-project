@@ -1,9 +1,9 @@
 // import { Injectable } from "@nestjs/common";
 // import { InjectModel } from "@nestjs/mongoose";
-// // import { CommentRepository } from "src/features/bloggers_platform/comments/repository/comment.repository";
+// import { CommentRepository } from "src/features/bloggers_platform/comments/repository/comment.repository";
 // import { Post, PostDocument, PostModelType } from "../domain/post.entity";
 // import { Comment, CommentDocument, CommentModelType } from "src/features/bloggers_platform/comments/domain/comment.entity";
-// // import { CommentViewModel, PaginatorCommentViewModelDB } from "src/features/bloggers_platform/comments/api/models/output.model";
+// import { CommentViewModel, PaginatorCommentViewModelDB } from "src/features/bloggers_platform/comments/api/models/output.model";
 // import { PaginatorPostViewModel, PostViewModel } from "../api/models/output.model";
 // import { TypePostHalper } from "src/base/types/post.types";
 // import { postPagination } from "src/base/models/post.model";
@@ -15,7 +15,7 @@
 // @Injectable()
 // export class PostQueryRepository {
 //     constructor(
-//         // protected commentRepository: CommentRepository,
+//         protected commentRepository: CommentRepository,
 //         @InjectModel(Post.name) private postModel: PostModelType,
 //         @InjectModel(Comment.name) private commentModel: CommentModelType
 //     ) {}
@@ -65,41 +65,41 @@
 //         // console.log(`like`,like);////////////////
 //         return this.mapPost(post, userLikeStatus/*, allLikes*/);
 //     }
-//     // async findCommentById(commentId: string) {
-//     //     const comment = await this.commentModel.findOne({ _id: commentId });
-//     //     if (!comment) {
-//     //         return null;
-//     //     }
-//     //     return this.mapComment(comment);
-//     // }
-//     // async findCommentByPost(helper: TypePostHalper, id: string, userId: string | null): Promise<PaginatorCommentViewModelDB> {
-//     //     const queryParams = commentsPagination(helper);
-//     //     const comments: CommentDocument[] = await this.commentModel
-//     //         .find({ postId: id })
-//     //         .sort({ [queryParams.sortBy]: queryParams.sortDirection })
-//     //         .skip((queryParams.pageNumber - 1) * queryParams.pageSize)
-//     //         .limit(queryParams.pageSize)
-//     //         .exec();
+//     async findCommentById(commentId: string) {
+//         const comment = await this.commentModel.findOne({ _id: commentId });
+//         if (!comment) {
+//             return null;
+//         }
+//         return this.mapComment(comment);
+//     }
+//     async findCommentByPost(helper: TypePostHalper, id: string, userId: string | null): Promise<PaginatorCommentViewModelDB> {
+//         const queryParams = commentsPagination(helper);
+//         const comments: CommentDocument[] = await this.commentModel
+//             .find({ postId: id })
+//             .sort({ [queryParams.sortBy]: queryParams.sortDirection })
+//             .skip((queryParams.pageNumber - 1) * queryParams.pageSize)
+//             .limit(queryParams.pageSize)
+//             .exec();
 
-//     //     const totalCount = await this.commentModel.countDocuments({ postId: id });
+//         const totalCount = await this.commentModel.countDocuments({ postId: id });
 
-//     //     const items = await Promise.all(comments.map(async comment => {
-//     //         let like;
-//     //         if (userId) {
-//     //             like = await this.commentRepository.findLike(comment._id.toString(), userId);
-//     //         }
-//     //         const userLikeStatus = like ? like.status : likeStatus.None;
-//     //         return this.mapComment(comment, userLikeStatus);
-//     //     }));
+//         const items = await Promise.all(comments.map(async comment => {
+//             let like;
+//             if (userId) {
+//                 like = await this.commentRepository.findLike(comment._id.toString(), userId);
+//             }
+//             const userLikeStatus = like ? like.status : likeStatus.None;
+//             return this.mapComment(comment, userLikeStatus);
+//         }));
 
-//     //     return {
-//     //         pagesCount: Math.ceil(totalCount / queryParams.pageSize),
-//     //         page: queryParams.pageNumber,
-//     //         pageSize: queryParams.pageSize,
-//     //         totalCount,
-//     //         items,
-//     //     };
-//     // }
+//         return {
+//             pagesCount: Math.ceil(totalCount / queryParams.pageSize),
+//             page: queryParams.pageNumber,
+//             pageSize: queryParams.pageSize,
+//             totalCount,
+//             items,
+//         };
+//     }
 //     mapPost(post: PostDocument, userLikeStatus?: likeStatus/*, allLikes?: LikesType[]*/): PostViewModel {
 //         const newestLikes: NewestLikesType[] = [];
 
@@ -133,17 +133,17 @@
 //             },
 //         };
 //     }
-//     // mapComment(comment: CommentDocument, userLikeStatus?: likeStatus): CommentViewModel {
-//     //     return {
-//     //         id: comment.id,
-//     //         content: comment.content,
-//     //         createdAt: comment.createdAt,
-//     //         commentatorInfo: comment.commentatorInfo,
-//     //         likesInfo: {
-//     //             likesCount: comment.likesInfo.likesCount,
-//     //             dislikesCount: comment.likesInfo.dislikesCount,
-//     //             myStatus: userLikeStatus || likeStatus.None
-//     //         }
-//     //     };
-//     // }
+//     mapComment(comment: CommentDocument, userLikeStatus?: likeStatus): CommentViewModel {
+//         return {
+//             id: comment.id,
+//             content: comment.content,
+//             createdAt: comment.createdAt,
+//             commentatorInfo: comment.commentatorInfo,
+//             likesInfo: {
+//                 likesCount: comment.likesInfo.likesCount,
+//                 dislikesCount: comment.likesInfo.dislikesCount,
+//                 myStatus: userLikeStatus || likeStatus.None
+//             }
+//         };
+//     }
 // }

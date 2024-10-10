@@ -6,37 +6,13 @@ import { PaginatorPostViewModel, PostViewModel } from "../api/models/output.mode
 import { postPagination } from "src/base/models/post.model";
 import { likeStatus, NewestLikesType } from "../../likes/api/models/input.model";
 import { Post } from "../domain/post.sql.entity";
+import { CommentViewModel, PaginatorCommentViewModelDB } from "../../comments/api/models/output.model";
+import { commentsPagination } from "src/base/models/comment.model";
+import { Comment } from "../../comments/domain/comment.sql.entity";
 
 @Injectable()
 export class PostQueryRepository {
     constructor(private dataSource: DataSource) {}
-
-    // async getAllPosts(helper: TypePostHalper, user: MeViewModel | null): Promise<PaginatorPostViewModel> {
-    //     const queryParams = postPagination(helper);
-    //     const query = `
-    //         SELECT * FROM "Posts"
-    //         ORDER BY "${queryParams.sortBy}" ${queryParams.sortDirection}
-    //         LIMIT ${queryParams.pageSize} OFFSET ${(queryParams.pageNumber - 1) * queryParams.pageSize}
-    //     `;
-    //     const posts = await this.dataSource.query(query);
-    //     const totalCount = await this.dataSource.query(`SELECT COUNT(*) FROM "Posts"`);
-
-    //     const items = await Promise.all(posts.map(async post => {
-    //         let userLikeStatus = likeStatus.None;
-    //         if (user) {
-    //             // Здесь можно добавить логику для получения статуса лайка пользователя
-    //         }
-    //         return this.mapPost(post, userLikeStatus);
-    //     }));
-
-    //     return {
-    //         pagesCount: Math.ceil(totalCount[0].count / queryParams.pageSize),
-    //         page: queryParams.pageNumber,
-    //         pageSize: queryParams.pageSize,
-    //         totalCount: parseInt(totalCount[0].count),
-    //         items,
-    //     };
-    // }
 
     async getAllPosts(helper: TypePostHalper, user: MeViewModel | null): Promise<PaginatorPostViewModel> {
         const queryParams = postPagination(helper);
@@ -102,24 +78,62 @@ export class PostQueryRepository {
         return this.mapPost(post[0], userLikeStatus);
     }
 
-    // mapPost(post: Post, userLikeStatus?: likeStatus): PostViewModel {
-    //     const newestLikes: NewestLikesType[] = [];
-    //     return {
-    //         id: post.id,
-    //         title: post.title,
-    //         shortDescription: post.shortDescription,
-    //         content: post.content,
-    //         blogId: post.blogId,
-    //         blogName: post.blogName,
-    //         createdAt: post.createdAt,
-    //         extendedLikesInfo: {
-    //             likesCount: post.extendedLikesInfo.likesCount,
-    //             dislikesCount: post.extendedLikesInfo.dislikesCount,
-    //             myStatus: userLikeStatus || likeStatus.None,
-    //             newestLikes: newestLikes
-    //         },
-    //     };
-    // }
+    async findCommentById(commentId: string): Promise<CommentViewModel | null> {
+        const query = `
+            SELECT c.*,
+                COUNT(CASE WHEN cl."likeStatus" = 'Like' THEN 1 END) AS likesCount,
+                COUNT(CASE WHEN cl."likeStatus" = 'Dislike' THEN 1 END) AS dislikesCount
+            FROM "Comments" c
+            LEFT JOIN "CommentsLikes" cl 
+                ON c.id = cl."commentId"
+            WHERE c.id = $1
+            GROUP BY c.id
+        `;
+        const comment = await this.dataSource.query(query, [commentId]);
+    
+        if (!comment.length) {
+            return null;
+        }
+        let userLikeStatus = likeStatus.None;
+    
+        return this.mapComment(comment[0], userLikeStatus);
+    }
+
+    async findCommentByPost(helper: TypePostHalper, postId: string, userId: string | null): Promise<PaginatorCommentViewModelDB> {
+        const queryParams = commentsPagination(helper);
+    
+        const query = `
+            SELECT c.*,
+                COUNT(CASE WHEN cl."likeStatus" = 'Like' THEN 1 END) AS likesCount,
+                COUNT(CASE WHEN cl."likeStatus" = 'Dislike' THEN 1 END) AS dislikesCount
+            FROM "Comments" c
+            LEFT JOIN "CommentsLikes" cl 
+                ON c.id = cl."commentId"
+            WHERE c."postId" = $1
+            GROUP BY c.id
+            ORDER BY "${queryParams.sortBy}" ${queryParams.sortDirection}
+            LIMIT $2 OFFSET $3
+        `;
+    
+        const comments = await this.dataSource.query(query, [postId, queryParams.pageSize, (queryParams.pageNumber - 1) * queryParams.pageSize]);
+        const totalCount = await this.dataSource.query(`SELECT COUNT(*) FROM "Comments" WHERE "postId" = $1`, [postId]);
+    
+        const items = await Promise.all(comments.map(async comment => {
+            let userLikeStatus = likeStatus.None;
+            if (userId) {
+                // Здесь можно добавить логику для получения статуса лайка пользователя
+            }
+            return this.mapComment(comment, userLikeStatus);
+        }));
+    
+        return {
+            pagesCount: Math.ceil(totalCount[0].count / queryParams.pageSize),
+            page: queryParams.pageNumber,
+            pageSize: queryParams.pageSize,
+            totalCount: parseInt(totalCount[0].count),
+            items,
+        };
+    }
 
     mapPost(post: any, userLikeStatus: likeStatus): PostViewModel {
         const newestLikes: NewestLikesType[] = [];
@@ -137,6 +151,23 @@ export class PostQueryRepository {
                 myStatus: userLikeStatus || likeStatus.None,
                 newestLikes: newestLikes
             },
+        };
+    }
+
+    mapComment(comment: any, userLikeStatus?: likeStatus): CommentViewModel {
+    return {
+        id: comment.id,
+        content: comment.content,
+        createdAt: comment.createdAt,
+        commentatorInfo: {
+            userId: comment.userId,
+            userLogin: comment.userLogin
+        },
+        likesInfo: {
+            likesCount: parseInt(comment.likesCount, 10) || 0,
+            dislikesCount: parseInt(comment.dislikesCount, 10) || 0,
+            myStatus: userLikeStatus || likeStatus.None
+            }
         };
     }
 }
