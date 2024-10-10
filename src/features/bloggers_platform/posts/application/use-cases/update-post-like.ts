@@ -1,9 +1,9 @@
-// import { CommentRepository } from "src/features/bloggers_platform/comments/repository/comment.repository";
-// import { PostRepository } from "../../repository/post.repository";
-// import { Post } from "../../domain/post.entity";
+// import { CommentRepository } from "src/features/bloggers_platform/comments/repository/comment.sql.repository";
+// import { PostRepository } from "../../repository/post.sql.repository";
+// import { Post } from "../../domain/post.sql.entity";
 // import { MeViewModel } from "src/features/auth/api/models/output.model";
 // import { likeStatus } from "src/features/bloggers_platform/likes/api/models/input.model";
-// import { Like } from "src/features/bloggers_platform/likes/domain/likes.entity";
+// import { Like } from "src/features/bloggers_platform/likes/domain/like.sql.entity";
 // import {WithId} from "mongodb"
 // import { CommandHandler } from "@nestjs/cqrs";
 
