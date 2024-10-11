@@ -11,9 +11,9 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { BlogIsExistConstraint } from './infrastructure/decorators/validate/blog-is-exist.decorator';
 import configuration, { ConfigurationType } from './settings/configuration';
 import { validate } from './settings/env/configuration-validation';
-// import { UpdatePostLikeUseCase } from './features/posts/application/use-cases/update-post-like';
-// import { LikeStatusUseCase } from './features/comments/application/use-cases/like-status';
-// import { CreateCommentByPostUseCase } from './features/posts/application/use-cases/create-comment-by-post';
+import { UpdatePostLikeUseCase } from './features/bloggers_platform/posts/application/use-cases/sql-update-post-like';
+import { LikeStatusUseCase } from './features/bloggers_platform/comments/application/use-cases/like-status';
+import { CreateCommentByPostUseCase } from './features/bloggers_platform/posts/application/use-cases/create-comment-by-post';
 import { CreatePostUseCase } from './features/bloggers_platform/posts/application/use-cases/create-post';
 import { CreatePostForBlogUseCase } from './features/bloggers_platform/blogs/application/use-cases/create-post-for-blog';
 import { UsersModule } from './features/users/users.module';
@@ -43,9 +43,9 @@ const useCases = [
   PasswordRecoveryUseCase,
   AuthLogoutAndDeleteSessionUseCase,
   ConfirmEmailUseCase,
-  // LikeStatusUseCase, 
-  // UpdatePostLikeUseCase,
-  // CreateCommentByPostUseCase,
+  LikeStatusUseCase, 
+  UpdatePostLikeUseCase,
+  CreateCommentByPostUseCase,
   CreatePostUseCase,
   CreatePostForBlogUseCase
 ];

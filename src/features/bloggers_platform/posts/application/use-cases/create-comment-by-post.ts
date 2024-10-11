@@ -8,7 +8,7 @@ import { CommentRepository } from "src/features/bloggers_platform/comments/repos
 
 export class CreateCommentByPostCommand {
     constructor(
-        public paramId: string,
+        public postId: string,
         public body: CommentInputModel,
         public user: MeViewModel
         ) {}
@@ -22,12 +22,12 @@ export class CreateCommentByPostUseCase {
     ) {}
 
     async execute(command: CreateCommentByPostCommand) {
-        const {paramId, body, user} = command;
-        const post = await this.postRepository.findPostById(paramId);
+        const {postId, body, user} = command;
+        const post = await this.postRepository.findPostById(postId);
         if(!post) {
             throw new NotFoundException()
         }
-        const newComment: Comment = Comment.createComment(paramId, body.content, user.userId, user.login)
+        const newComment: Comment = Comment.createComment(postId, user.userId, body.content)
         return this.commentRepository.insertComment(newComment);
     }
 }

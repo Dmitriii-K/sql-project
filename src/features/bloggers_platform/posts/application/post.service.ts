@@ -22,7 +22,7 @@ export class PostService {
     }
 
     async findPostById(postId: string): Promise<Post | null>  {
-        return this.postRepository.findPostForBlogById(postId);
+        return this.postRepository.findPostById(postId);
     }
 
     async findPostForBlogById(blogId: string): Promise<Post | null>  {

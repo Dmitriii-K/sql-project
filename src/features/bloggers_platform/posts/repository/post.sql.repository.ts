@@ -3,10 +3,40 @@ import { DataSource } from "typeorm";
 import { PostInputModel } from "../api/models/input.model";
 import { Post } from "../domain/post.sql.entity";
 import { BlogPostInputModel } from "../../blogs/api/models/input.model";
+import { PostLike } from "../../likes/domain/PostLikes.sql.entity";
 
 @Injectable()
 export class PostRepository {
     constructor(private dataSource: DataSource) {}
+
+    async findPostLike(postId: string): Promise<PostLike | null> {
+        const query = `
+            SELECT * FROM "PostsLikes"
+            WHERE "postId" = $1
+        `;
+        const result = await this.dataSource.query(query, [postId]);
+        return result.length ? result[0] : null;
+    }
+
+    async insertPostLike(like: PostLike): Promise<string> {
+        const query = `
+            INSERT INTO "PostsLikes" (id, "likeStatus", "userId", "postId", "createdAt")
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id
+        `;
+        const result = await this.dataSource.query(query, [like.id, like.likeStatus, like.userId, like.postId, like.createdAt]);
+        return result[0].id;
+    }
+
+    async updatePostLikeStatus(postId: string, updateStatus: string): Promise<boolean> {
+        const query = `
+            UPDATE "PostsLikes"
+            SET "likeStatus" = $1
+            WHERE "postId" = $2
+        `;
+        const result = await this.dataSource.query(query, [updateStatus, postId]);
+        return result.rowCount === 1;
+    }
 
     async findPostById(postId: string): Promise<Post | null> {
         const query = `SELECT * FROM "Posts" WHERE id = $1`;
@@ -52,15 +82,15 @@ export class PostRepository {
         return !!result[1];
     }
 
-    async updatePostCount(postId: string, likesCount: number, dislikesCount: number): Promise<boolean> {
-        const query = `
-            UPDATE "Posts"
-            SET "extendedLikesInfo.likesCount" = $1, "extendedLikesInfo.dislikesCount" = $2
-            WHERE id = $3
-        `;
-        const result = await this.dataSource.query(query, [likesCount, dislikesCount, postId]);
-        return !!result[1];
-    }
+    // async updatePostCount(postId: string, likesCount: number, dislikesCount: number): Promise<boolean> {
+    //     const query = `
+    //         UPDATE "Posts"
+    //         SET "extendedLikesInfo.likesCount" = $1, "extendedLikesInfo.dislikesCount" = $2
+    //         WHERE id = $3
+    //     `;
+    //     const result = await this.dataSource.query(query, [likesCount, dislikesCount, postId]);
+    //     return !!result[1];
+    // }
 
     async deletePost(postId: string): Promise<boolean> {
         const query = `DELETE FROM "Posts" WHERE id = $1`;
