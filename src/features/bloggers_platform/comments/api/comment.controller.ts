@@ -29,18 +29,18 @@ export class CommentController {
         @Req() req: Request) {
             const user = req.user ? req.user : null;
             if(!user) throw new UnauthorizedException()
-                
+            // console.log('userId', user.userId);//-------------------
             const comment = await this.commentQueryRepository.findCommentById(id, user.userId);
             if (!comment || !user) {
                 throw new NotFoundException();
             }
             // const result = await this.likeStatusUseCase.execute(user, body.likeStatus, comment);
-            const result = await this.commandBus.execute(new LikeStatusCommand(user, body.likeStatus, comment));
+            const result = await this.commandBus.execute(new LikeStatusCommand(user.userId, body.likeStatus, comment));
             return result;
     }
 
     @UseGuards(JwtAuthGuard)
-    @Put(':id')
+    @Put(':id')//------------------
     @HttpCode(204)
     async updateComment(
         @Param('id') id: string,
@@ -50,17 +50,17 @@ export class CommentController {
             const comment = await this.commentService.findComment(id);
             if (!comment) {
                 throw new NotFoundException();
-            // } else {
-            //     if (req.user?.userId !== findUser.commentatorInfo.userId.toString()) {
-            //         throw new ForbiddenException();
-            //     }
+            } else {
+                if (req.user?.userId !== comment.userId) {
+                    throw new ForbiddenException();
+                }
                 const updateResult = await this.commentService.updateComment(id, body.content);
                 return updateResult;
             }
     }
 
     @UseGuards(JwtAuthGuard)
-    @Delete(':id')
+    @Delete(':id')//------------------
     @HttpCode(204)
     async deleteComment(
         @Param('id') id: string,
@@ -69,17 +69,18 @@ export class CommentController {
             const comment = await this.commentService.findComment(id);
             if (!comment) {
                 throw new NotFoundException();
-            // } else {
-            //     if (req.user?.userId !== user.commentatorInfo.userId.toString()) {
-            //         throw new ForbiddenException();
-            //     }
+            } 
+            else {
+                if (req.user?.userId !== comment.userId) {
+                    throw new ForbiddenException();
+                }
                 const deleteComment = await this.commentService.deleteComment(id);
                 return deleteComment;
             }
     }
 
     @UseGuards(SoftAuthGuard)
-    @Get(':id')
+    @Get(':id')//-----------------
     async getComment(
         @Param('id') id: string,
         @Res({ passthrough: true }) res: Response,

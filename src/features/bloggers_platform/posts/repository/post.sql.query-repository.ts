@@ -78,52 +78,100 @@ export class PostQueryRepository {
         return this.mapPost(post[0], userLikeStatus);
     }
 
-    async findCommentById(commentId: string): Promise<CommentViewModel | null> {
+    // async findCommentById(commentId: string, userId: string): Promise<CommentViewModel | null> {
+    //     const query = `
+    //         SELECT c.*, u.id AS "userId", u.login AS "userLogin",
+    //             COUNT(CASE WHEN cl."likeStatus" = 'Like' THEN 1 END) AS likesCount,
+    //             COUNT(CASE WHEN cl."likeStatus" = 'Dislike' THEN 1 END) AS dislikesCount,
+    //             --COALESCE(твой запрос или колонка, 'None')
+    //         FROM "Comments" c
+    //         LEFT JOIN "CommentsLikes" cl ON c.id = cl."commentsId"
+    //         LEFT JOIN "Users" u ON c."userId" = u.id
+    //         WHERE c.id = $1
+    //         GROUP BY c.id, u.id, u.login
+    //     `;
+    //     const comment = await this.dataSource.query(query, [commentId, userId]);
+    
+    //     if (!comment.length) {
+    //         return null;
+    //     }
+    
+    //     return this.mapComment(comment[0]);
+    // }
+    async findCommentById(commentId: string, userId: string): Promise<CommentViewModel | null> {
         const query = `
-            SELECT c.*,
+            SELECT c.*, u.id AS "userId", u.login AS "userLogin",
                 COUNT(CASE WHEN cl."likeStatus" = 'Like' THEN 1 END) AS likesCount,
-                COUNT(CASE WHEN cl."likeStatus" = 'Dislike' THEN 1 END) AS dislikesCount
+                COUNT(CASE WHEN cl."likeStatus" = 'Dislike' THEN 1 END) AS dislikesCount,
+                COALESCE((SELECT cl2."likeStatus" FROM "CommentsLikes" cl2 WHERE cl2."commentsId" = c.id AND cl2."userId" = $2), 'None') AS userLikeStatus
             FROM "Comments" c
-            LEFT JOIN "CommentsLikes" cl 
-                ON c.id = cl."commentId"
+            LEFT JOIN "CommentsLikes" cl ON c.id = cl."commentsId"
+            LEFT JOIN "Users" u ON c."userId" = u.id
             WHERE c.id = $1
-            GROUP BY c.id
+            GROUP BY c.id, u.id, u.login
         `;
-        const comment = await this.dataSource.query(query, [commentId]);
+        const comment = await this.dataSource.query(query, [commentId, userId]);
     
         if (!comment.length) {
             return null;
         }
-        let userLikeStatus = likeStatus.None;
     
-        return this.mapComment(comment[0], userLikeStatus);
+        return this.mapComment(comment[0]);
     }
 
+    // async findCommentByPost(helper: TypePostHalper, postId: string, userId: string | null): Promise<PaginatorCommentViewModelDB> {
+    //     const queryParams = commentsPagination(helper);
+    
+    //     const query = `
+    //         SELECT c.*,
+    //             CAST(COUNT(CASE WHEN cl."likeStatus" = 'Like' THEN 1 END), integer) AS likesCount,
+    //             COUNT(CASE WHEN cl."likeStatus" = 'Dislike' THEN 1 END) AS dislikesCount
+    //         FROM "Comments" c
+    //         LEFT JOIN "CommentsLikes" cl 
+    //             ON c.id = cl."commentId"
+    //         WHERE c."postId" = $1
+    //         GROUP BY c.id
+    //         ORDER BY "${queryParams.sortBy}" ${queryParams.sortDirection}
+    //         LIMIT $2 OFFSET $3
+    //     `;
+    
+    //     const comments = await this.dataSource.query(query, [postId, queryParams.pageSize, (queryParams.pageNumber - 1) * queryParams.pageSize]);
+    //     const totalCount = await this.dataSource.query(`SELECT COUNT(*) FROM "Comments" WHERE "postId" = $1`, [postId]);
+    
+    //     const items = await Promise.all(comments.map(async comment => {
+    //         return this.mapComment(comment);
+    //     }));
+    
+    //     return {
+    //         pagesCount: Math.ceil(totalCount[0].count / queryParams.pageSize),
+    //         page: queryParams.pageNumber,
+    //         pageSize: queryParams.pageSize,
+    //         totalCount: parseInt(totalCount[0].count),
+    //         items,
+    //     };
+    // }
     async findCommentByPost(helper: TypePostHalper, postId: string, userId: string | null): Promise<PaginatorCommentViewModelDB> {
         const queryParams = commentsPagination(helper);
     
         const query = `
-            SELECT c.*,
+            SELECT c.*, u.id AS "userId", u.login AS "userLogin",
                 COUNT(CASE WHEN cl."likeStatus" = 'Like' THEN 1 END) AS likesCount,
-                COUNT(CASE WHEN cl."likeStatus" = 'Dislike' THEN 1 END) AS dislikesCount
+                COUNT(CASE WHEN cl."likeStatus" = 'Dislike' THEN 1 END) AS dislikesCount,
+                COALESCE((SELECT cl2."likeStatus" FROM "CommentsLikes" cl2 WHERE cl2."commentsId" = c.id AND cl2."userId" = $3), 'None') AS userLikeStatus
             FROM "Comments" c
-            LEFT JOIN "CommentsLikes" cl 
-                ON c.id = cl."commentId"
+            LEFT JOIN "CommentsLikes" cl ON c.id = cl."commentsId"
+            LEFT JOIN "Users" u ON c."userId" = u.id
             WHERE c."postId" = $1
-            GROUP BY c.id
+            GROUP BY c.id, u.id, u.login
             ORDER BY "${queryParams.sortBy}" ${queryParams.sortDirection}
-            LIMIT $2 OFFSET $3
+            LIMIT $2 OFFSET $4
         `;
     
-        const comments = await this.dataSource.query(query, [postId, queryParams.pageSize, (queryParams.pageNumber - 1) * queryParams.pageSize]);
+        const comments = await this.dataSource.query(query, [postId, queryParams.pageSize, userId, (queryParams.pageNumber - 1) * queryParams.pageSize]);
         const totalCount = await this.dataSource.query(`SELECT COUNT(*) FROM "Comments" WHERE "postId" = $1`, [postId]);
     
         const items = await Promise.all(comments.map(async comment => {
-            let userLikeStatus = likeStatus.None;
-            if (userId) {
-                // Здесь можно добавить логику для получения статуса лайка пользователя
-            }
-            return this.mapComment(comment, userLikeStatus);
+            return this.mapComment(comment);
         }));
     
         return {
@@ -154,7 +202,8 @@ export class PostQueryRepository {
         };
     }
 
-    mapComment(comment: any, userLikeStatus?: likeStatus): CommentViewModel {
+    mapComment(comment: any): CommentViewModel {
+        // json_build_object() as comentatorInfo
     return {
         id: comment.id,
         content: comment.content,
@@ -166,7 +215,7 @@ export class PostQueryRepository {
         likesInfo: {
             likesCount: parseInt(comment.likesCount, 10) || 0,
             dislikesCount: parseInt(comment.dislikesCount, 10) || 0,
-            myStatus: userLikeStatus || likeStatus.None
+            myStatus: comment.userLikeStatus || likeStatus.None
             }
         };
     }

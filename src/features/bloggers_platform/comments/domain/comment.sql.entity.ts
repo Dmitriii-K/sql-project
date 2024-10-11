@@ -12,12 +12,20 @@ content: string;
 @CreateDateColumn()
 createdAt: Date;
 
-    static createComment(postId: string, content: string, userId: string, userLogin: string): Comment {
+@Column({ type: 'uuid', nullable: false })
+postId: string;
+
+@Column({ type: 'uuid', nullable: false })
+userId: string;
+
+    static createComment(postId: string, userId: string, content: string): Comment {
         const comment = new Comment();
 
-        comment.id = randomUUID();//
-        comment.content = content;//
-        comment.createdAt = new Date();//
+        comment.id = randomUUID();
+        comment.content = content;
+        comment.createdAt = new Date();
+        comment.postId = postId;
+        comment.userId = userId;
 
         return comment;
     }

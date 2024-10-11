@@ -3,14 +3,13 @@ import { PostService } from "../application/post.service";
 import { PostQueryRepository } from "../repository/post.sql.query-repository";
 import { TypePostHalper } from "src/base/types/post.types";
 import { PostInputModel } from "./models/input.model";
-import { PostRepository } from "../repository/post.sql.repository";
 import { LikeStatusDto } from "src/features/bloggers_platform/likes/api/models/input.model";
 import { Request, Response } from "express";
 import { CommentInputModel } from "src/features/bloggers_platform/comments/api/models/input.model";
 import { BasicAuthGuard } from "src/infrastructure/guards/basic.guard";
 import { JwtAuthGuard } from "src/infrastructure/guards/jwt-auth.guard";
 import { SoftAuthGuard } from "src/infrastructure/guards/dubl-guards/soft-auth.guard";
-// import { UpdatePostLikeCommand } from "../application/use-cases/update-post-like";
+import { UpdatePostLikeCommand } from "../application/use-cases/sql-update-post-like";
 import { CommandBus } from "@nestjs/cqrs";
 import { CreatePostCommand } from "../application/use-cases/create-post";
 import { CreateCommentByPostCommand } from "../application/use-cases/create-comment-by-post";
@@ -21,30 +20,31 @@ export class PostController {
     constructor(
         private postService: PostService,
         private postQueryRepository: PostQueryRepository,
-        private postRepository: PostRepository,
         private commandBus: CommandBus,
     ) {}
 
-    // @UseGuards(JwtAuthGuard)
-    // @Put(':id/like-status')
-    // @HttpCode(204)
-    // async updateLikeStatus(
-    //     @Param('id') id: string,
-    //     @Body() body: LikeStatusDto,
-    //     @Res({ passthrough: true }) res: Response,
-    //     @Req() req: Request
-    // ) {
-    //     const user = req.user ? req.user : null;
-    //     const post = await this.postService.findPostById(id);
-    //     if (!post || !user) {
-    //         throw new NotFoundException();
-    //         }
-    //     const result = await this.commandBus.execute(new UpdatePostLikeCommand(user, body.likeStatus, post));
-    //     return result;
-    // }
+    @UseGuards(JwtAuthGuard)
+    @Put(':id/like-status')
+    @HttpCode(204)
+    async updateLikeStatus(
+        @Param('id') id: string,
+        @Body() body: LikeStatusDto,
+        @Res({ passthrough: true }) res: Response,
+        @Req() req: Request
+    ) {
+        const user = req.user ? req.user : null;
+        if(!user) throw new UnauthorizedException()
+        // console.log('userId', user.userId);//-------------------
+        const post = await this.postService.findPostById(id);
+        if (!post || !user) {
+            throw new NotFoundException();
+            }
+        const result = await this.commandBus.execute(new UpdatePostLikeCommand(user.userId, body.likeStatus, post));
+        return result;
+    }
 
     @UseGuards(SoftAuthGuard)
-    @Get(':id/comments')
+    @Get(':id/comments')//-----------------
     async getCommentByPost(
         @Query() query: TypePostHalper,
         @Param('id') id: string,
@@ -59,7 +59,7 @@ export class PostController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Post(':id/comments')
+    @Post(':id/comments')//---------------
     async createCommentByPostId(
         @Body() body: CommentInputModel,
         @Param('id') id: string,
@@ -69,11 +69,11 @@ export class PostController {
         const user = req.user ? req.user : null;
         if(!user) throw new UnauthorizedException()
         // const createResult = await this.postService.createCommentByPost(id, body, user!);
-        const createResult = await this.commandBus.execute(new CreateCommentByPostCommand(id, body, user));
-        if (!createResult) {
+        const commentId = await this.commandBus.execute(new CreateCommentByPostCommand(id, body, user));
+        if (!commentId) {
             throw new NotFoundException();
         }
-        const newComment = await this.postQueryRepository.findCommentById(createResult);
+        const newComment = await this.postQueryRepository.findCommentById(commentId, user.userId);
         return newComment;
     }
 

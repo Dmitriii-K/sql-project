@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { DataSource } from "typeorm";
 import { Comment } from "../domain/comment.sql.entity";
-import { Like } from "../../likes/domain/CommentLike.sql.entity";
+import { CommentsLike } from "../../likes/domain/CommentLike.sql.entity";
 
 @Injectable()
 export class CommentRepository {
@@ -17,52 +17,52 @@ export class CommentRepository {
         return result.rowCount === 1;
     }
 
-    async findAllLikesForPost(postId: string): Promise<Like[]> {
-        const query = `
-            SELECT * FROM "Likes"
-            WHERE "postId" = $1
-        `;
-        const result = await this.dataSource.query(query, [postId]);
-        return result;
-    }
+    // async findAllLikesForPost(postId: string): Promise<CommentsLike[]> {
+    //     const query = `
+    //         SELECT * FROM "Likes"
+    //         WHERE "postId" = $1
+    //     `;
+    //     const result = await this.dataSource.query(query, [postId]);
+    //     return result;
+    // }
 
-    async findLike(commentId: string, userId: string): Promise<Like | null> {
+    async findCommentLike(commentId: string): Promise<CommentsLike | null> {
         const query = `
-            SELECT * FROM "Likes"
-            WHERE "commentId" = $1 AND "userId" = $2
+            SELECT * FROM "CommentsLikes"
+            WHERE "commentsId" = $1
         `;
-        const result = await this.dataSource.query(query, [commentId, userId]);
+        const result = await this.dataSource.query(query, [commentId]);
         return result.length ? result[0] : null;
     }
 
-    async insertLike(data: Like): Promise<string> {
+    async insertCommentLike(like: CommentsLike): Promise<string> {
         const query = `
-            INSERT INTO "Likes" (id, status, "userId", "addedAt")
-            VALUES ($1, $2, $3, $4)
+            INSERT INTO "CommentsLikes" (id, "likeStatus", "userId", "commentsId", "createdAt")
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING id
         `;
-        const result = await this.dataSource.query(query, [data.id, data.status, data.userId, data.addedAt]);
+        const result = await this.dataSource.query(query, [like.id, like.likeStatus, like.userId, like.commentsId, like.createdAt]);
         return result[0].id;
     }
 
-    async updateLikeStatus(id: string, updateStatus: string): Promise<boolean> {
+    async updateCommentLikeStatus(commentsId: string, userId: string, updateStatus: string): Promise<boolean> {
         const query = `
-            UPDATE "Likes"
+            UPDATE "CommentsLikes"
             SET "likeStatus" = $1
-            WHERE id = $2
+            WHERE "commentsId" = $2 AND "userId" = $3
         `;
-        const result = await this.dataSource.query(query, [updateStatus, id]);
+        const result = await this.dataSource.query(query, [updateStatus, commentsId, userId]);
         return result.rowCount === 1;
     }
 
-    async updateLikesInfo(commentId: string, likesCount: number, dislikesCount: number): Promise<void> {
-        const query = `
-            UPDATE "Comments"
-            SET "likesInfo.likesCount" = $1, "likesInfo.dislikesCount" = $2
-            WHERE id = $3
-        `;
-        await this.dataSource.query(query, [likesCount, dislikesCount, commentId]);
-    }
+    // async updateLikesInfo(commentId: string, likesCount: number, dislikesCount: number): Promise<void> {
+    //     const query = `
+    //         UPDATE "Comments"
+    //         SET "likesInfo.likesCount" = $1, "likesInfo.dislikesCount" = $2
+    //         WHERE id = $3
+    //     `;
+    //     await this.dataSource.query(query, [likesCount, dislikesCount, commentId]);
+    // }
 
     async findComment(commentId: string): Promise<Comment | null> {
         const query = `
@@ -82,16 +82,18 @@ export class CommentRepository {
         return result.rowCount === 1;
     }
 
-    async insertComment(data: Comment): Promise<string> {
+    async insertComment(comment: Comment): Promise<string> {
         const query = `
-            INSERT INTO "Comments" (id, content, "createdAt")
-            VALUES ($1, $2, $3)
+            INSERT INTO "Comments" (id, content, "createdAt", "postId", "userId")
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING id
         `;
         const result = await this.dataSource.query(query, [
-            data.id,
-            data.content,
-            data.createdAt
+            comment.id,
+            comment.content,
+            comment.createdAt,
+            comment.postId,
+            comment.userId
         ]);
         return result[0].id;
     }

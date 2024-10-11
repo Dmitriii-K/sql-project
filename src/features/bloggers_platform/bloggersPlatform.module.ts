@@ -4,10 +4,10 @@ import { BlogController } from "./blogs/api/blog.controller";
 import { BlogService } from "./blogs/application/blog.service";
 import { BlogRepository } from "./blogs/repository/blog.sql.repository";
 import { BlogQueryRepository } from "./blogs/repository/blog.sql.query-repository";
-// import { CommentController } from "./comments/api/comment.controller";
-// import { CommentService } from "./comments/application/comment.service";
-// import { CommentRepository } from "./comments/repository/comment.repository";
-// import { CommentQueryRepository } from "./comments/repository/comment.query-repository";
+import { CommentController } from "./comments/api/comment.controller";
+import { CommentService } from "./comments/application/comment.service";
+import { CommentRepository } from "./comments/repository/comment.sql.repository";
+import { CommentQueryRepository } from "./comments/repository/comment.sql.query-repository";
 import { PostController } from "./posts/api/post.controller";
 import { PostService } from "./posts/application/post.service";
 import { PostRepository } from "./posts/repository/post.sql.repository";
@@ -22,9 +22,9 @@ import { BlogControllerSa } from "./blogs/api/blog.controller-sa";
         UsersModule,
         // CoreModule,
     ],
-    controllers: [BlogController, BlogControllerSa, /*CommentController,*/ PostController],
-    providers: [BlogService, BlogRepository, BlogQueryRepository, /*CommentService, CommentRepository, CommentQueryRepository, */PostService, PostRepository, PostQueryRepository],
-    exports: [BlogRepository, PostRepository, /*CommentRepository,*/ BlogRepository]
+    controllers: [BlogController, BlogControllerSa, CommentController, PostController],
+    providers: [BlogService, BlogRepository, BlogQueryRepository, CommentService, CommentRepository, CommentQueryRepository, PostService, PostRepository, PostQueryRepository],
+    exports: [BlogRepository, PostRepository, CommentRepository, BlogRepository]
 })
 export class BloggersPlatformModule {
 }
