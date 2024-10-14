@@ -20,7 +20,7 @@ export class UpdatePostLikeUseCase {
     async execute(command: UpdatePostLikeCommand) {
         const {userId, body, post} = command;
 
-        const existPostLike = await this.postRepository.findPostLike(post.id);
+        const existPostLike = await this.postRepository.findPostLike(post.id, userId);
         // console.log('postLike', existPostLike);//-------------------
         // console.log('likeStatus', body);//-------------------
         if (!existPostLike) {

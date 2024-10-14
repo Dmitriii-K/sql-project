@@ -9,16 +9,17 @@ import { PostLike } from "../../likes/domain/PostLikes.sql.entity";
 export class PostRepository {
     constructor(private dataSource: DataSource) {}
 
-    async findPostLike(postId: string): Promise<PostLike | null> {
+    async findPostLike(postId: string, userId: string): Promise<PostLike | null> {
         const query = `
             SELECT * FROM "PostsLikes"
-            WHERE "postId" = $1
+            WHERE "postId" = $1 AND "userId" = $2
         `;
-        const result = await this.dataSource.query(query, [postId]);
+        const result = await this.dataSource.query(query, [postId, userId]);
         return result.length ? result[0] : null;
     }
 
     async insertPostLike(like: PostLike): Promise<string> {
+        // console.log(like);//--------------------
         const query = `
             INSERT INTO "PostsLikes" (id, "likeStatus", "userId", "postId", "createdAt")
             VALUES ($1, $2, $3, $4, $5)

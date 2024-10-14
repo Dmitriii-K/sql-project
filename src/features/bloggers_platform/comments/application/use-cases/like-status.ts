@@ -37,7 +37,7 @@ export class LikeStatusUseCase {
     async execute(command: LikeStatusCommand) {
         const {userId, body, comment} = command;
 
-        const existCommentLike = await this.commentRepository.findCommentLike(comment.id);
+        const existCommentLike = await this.commentRepository.findCommentLike(comment.id, userId);
         if (!existCommentLike) {
             const newCommentLike: CommentsLike = CommentsLike.createCommentLike(userId, comment.id, body);
             await this.commentRepository.insertCommentLike(newCommentLike);

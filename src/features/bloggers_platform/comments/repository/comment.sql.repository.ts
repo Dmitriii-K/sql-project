@@ -26,12 +26,12 @@ export class CommentRepository {
     //     return result;
     // }
 
-    async findCommentLike(commentId: string): Promise<CommentsLike | null> {
+    async findCommentLike(commentId: string, userId: string): Promise<CommentsLike | null> {
         const query = `
             SELECT * FROM "CommentsLikes"
-            WHERE "commentsId" = $1
+            WHERE "commentsId" = $1 AND "userId" = $2
         `;
-        const result = await this.dataSource.query(query, [commentId]);
+        const result = await this.dataSource.query(query, [commentId, userId]);
         return result.length ? result[0] : null;
     }
 
