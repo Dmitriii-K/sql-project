@@ -21,7 +21,7 @@ export class CommentController {
     
     @UseGuards(JwtAuthGuard)
     @Put(':id/like-status')
-    @HttpCode(204)
+    @HttpCode(204)//------------
     async likeStatus(
         @Param('id') id: string,
         @Body() body: LikeStatusDto,
@@ -86,6 +86,8 @@ export class CommentController {
         @Res({ passthrough: true }) res: Response,
         @Req() req: Request) {
         const userId: string | null = req.user ? req.user.userId : null;
+        // console.log('userId', userId);//-------------------
+        // console.log('commentId', id);//-------------------
         const comment: CommentViewModel | null = await this.commentQueryRepository.findCommentById(id, userId);
         if (!comment) {
             throw new NotFoundException();

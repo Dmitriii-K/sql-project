@@ -56,3 +56,9 @@ export class User {
         return user;
     }
 }
+
+// @OneToOne(() => User, (user: User) => user.userConfirm)
+// @JoinColumn({ name: 'userId' })
+// user: User;
+// @Column({ unique: true })
+// userId: number;

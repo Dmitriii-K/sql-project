@@ -22,12 +22,12 @@ generateToken(user: RequestUserDTO, deviceId?: string): { accessToken: string, r
 
     const accessToken = this.nestJwtService.sign(payload, {
         secret: secretKey,
-        expiresIn: '500s',
+        expiresIn: '50000s',
     });
 
     const refreshToken = this.nestJwtService.sign(payload, {
         secret: secretKey,
-        expiresIn: '700s',
+        expiresIn: '70000s',
     });
 
     return { accessToken, refreshToken };

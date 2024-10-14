@@ -28,13 +28,13 @@ export class PostRepository {
         return result[0].id;
     }
 
-    async updatePostLikeStatus(postId: string, updateStatus: string): Promise<boolean> {
+    async updatePostLikeStatus(postId: string, userId: string, updateStatus: string): Promise<boolean> {
         const query = `
             UPDATE "PostsLikes"
             SET "likeStatus" = $1
-            WHERE "postId" = $2
+            WHERE "postId" = $2 AND "userId" = $3
         `;
-        const result = await this.dataSource.query(query, [updateStatus, postId]);
+        const result = await this.dataSource.query(query, [updateStatus, postId, userId]);
         return result.rowCount === 1;
     }
 

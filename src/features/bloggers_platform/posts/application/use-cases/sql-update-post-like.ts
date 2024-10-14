@@ -21,16 +21,18 @@ export class UpdatePostLikeUseCase {
         const {userId, body, post} = command;
 
         const existPostLike = await this.postRepository.findPostLike(post.id);
+        // console.log('postLike', existPostLike);//-------------------
+        // console.log('likeStatus', body);//-------------------
         if (!existPostLike) {
-            const newPostLike: PostLike = PostLike.createPostLike(post.id, userId, body);
+            // console.log('userId', userId);//-------------------
+            const newPostLike: PostLike = PostLike.createPostLike(userId, post.id, body);
+            // console.log('postLike', newPostLike);//-------------------
             await this.postRepository.insertPostLike(newPostLike);
-            return true;
         } else {
             if (existPostLike.likeStatus !== body) {
-                await this.postRepository.updatePostLikeStatus(post.id, existPostLike.likeStatus);
-                return true;
+                await this.postRepository.updatePostLikeStatus(post.id, userId, body);
             }
         }
-        return false;
+        return true;
     }
 }

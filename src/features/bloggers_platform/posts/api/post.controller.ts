@@ -13,6 +13,7 @@ import { UpdatePostLikeCommand } from "../application/use-cases/sql-update-post-
 import { CommandBus } from "@nestjs/cqrs";
 import { CreatePostCommand } from "../application/use-cases/create-post";
 import { CreateCommentByPostCommand } from "../application/use-cases/create-comment-by-post";
+import { CommentQueryRepository } from "../../comments/repository/comment.sql.query-repository";
 
 
 @Controller('posts')
@@ -20,12 +21,13 @@ export class PostController {
     constructor(
         private postService: PostService,
         private postQueryRepository: PostQueryRepository,
+        private commentQueryRepository: CommentQueryRepository,
         private commandBus: CommandBus,
     ) {}
 
     @UseGuards(JwtAuthGuard)
     @Put(':id/like-status')
-    @HttpCode(204)
+    @HttpCode(204)//----------------
     async updateLikeStatus(
         @Param('id') id: string,
         @Body() body: LikeStatusDto,
@@ -51,6 +53,7 @@ export class PostController {
         @Res({ passthrough: true }) res: Response,
         @Req() req: Request) {
         const userId: string | null = req.user ? req.user.userId : null;
+        // if(!userId) throw new UnauthorizedException()
         const comments = await this.postQueryRepository.findCommentByPost(query, id, userId);
         if (comments.items.length < 1) {
             throw new NotFoundException();
@@ -70,10 +73,12 @@ export class PostController {
         if(!user) throw new UnauthorizedException()
         // const createResult = await this.postService.createCommentByPost(id, body, user!);
         const commentId = await this.commandBus.execute(new CreateCommentByPostCommand(id, body, user));
+        // console.log('commentId', commentId);//-------------------
         if (!commentId) {
             throw new NotFoundException();
         }
-        const newComment = await this.postQueryRepository.findCommentById(commentId, user.userId);
+        const newComment = await this.commentQueryRepository.findCommentById(commentId, user.userId);
+        // console.log('newComment', newComment);//-------------------
         return newComment;
     }
 
@@ -83,8 +88,9 @@ export class PostController {
         @Query() query: TypePostHalper,
         @Res({ passthrough: true }) res: Response,
         @Req() req: Request) {
-        const user = req.user ? req.user : null;
-        const posts = await this.postQueryRepository.getAllPosts(query, user);
+            const userId: string | null = req.user ? req.user.userId : null;
+        // if(!userId) throw new UnauthorizedException()
+        const posts = await this.postQueryRepository.getAllPosts(query, userId);
         return posts;
     }
 
@@ -111,6 +117,7 @@ export class PostController {
         @Res({ passthrough: true }) res: Response,
         @Req() req: Request) {
         const userId: string | null = req.user ? req.user.userId : null;
+        // if(!userId) throw new UnauthorizedException()
         const postResult = await this.postQueryRepository.findPostById(id, userId);
         if (!postResult) {
             throw new NotFoundException();
