@@ -33,21 +33,4 @@ export class Post {
 
         return post;
     }
-
-    // static createPost(title: string, shortDescription: string, content: string, blogId: string, blogName: string): Post {
-    //     const post = new this();
-        
-    //     post.title = title;
-    //     post.shortDescription = shortDescription;
-    //     post.content = content;
-    //     post.blogId = blogId;
-    //     post.blogName = blogName;
-    //     post.createdAt = new Date().toISOString();
-    //     post.extendedLikesInfo = {
-    //         likesCount: 0,
-    //         dislikesCount: 0,
-    //         newestLikes: []
-    //     };
-    //     return post;
-    // }
 }

@@ -7,10 +7,6 @@ import { BlogInputModel, BlogPostInputModel } from '../api/models/input.model';
 export class BlogRepository {
     constructor(private dataSource: DataSource) {}
 
-    // async insertBlog(data: Blog): Promise<string> {
-    //     const result = await this.dataSource.getRepository(Blog).save(data);
-    //     return result.id.toString();
-    // }
     async insertBlog(blog: Blog): Promise<string> {
         const query = `
             INSERT INTO "Blogs" (id, name, description, "websiteUrl", "createdAt", "isMembership")

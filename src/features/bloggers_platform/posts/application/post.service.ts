@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { PostRepository } from "../repository/post.sql.repository";
-import { PostInputModel } from "../api/models/input.model";
 import { Post } from "../domain/post.sql.entity";
 import { BlogPostInputModel } from "../../blogs/api/models/input.model";
 

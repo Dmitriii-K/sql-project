@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { Blog } from '../domain/blog.sql.entity';
-import { Post } from '../../posts/domain/post.sql.entity';
-import { likeStatus, NewestLikesType } from '../../likes/api/models/input.model';
 import { TypeBlogHalper, TypePostForBlogHalper } from 'src/base/types/blog.types';
 import { BlogViewModel, PaginatorBlogViewModel } from '../api/models/output.model';
 import { PaginatorPostViewModel, PostViewModel } from '../../posts/api/models/output.model';
@@ -50,35 +48,12 @@ export class BlogQueryRepository {
         return this.blogMap(blog[0]);
     }
 
-    // async getPostForBlogById(postId: string): Promise<PostViewModel | null> {
-    //     const query = `
-    //         SELECT p.*, b."name" AS "blogName",
-    //             COUNT(CASE WHEN pl."likeStatus" = 'Like' THEN 1 END) AS likesCount,
-    //             COUNT(CASE WHEN pl."likeStatus" = 'Dislike' THEN 1 END) AS dislikesCount
-    //         FROM "Posts" p
-    //         LEFT JOIN "Blogs" b 
-    //             ON p."blogId" = b.id
-    //         LEFT JOIN "PostsLikes" pl 
-    //             ON p.id = pl."postId"
-    //         WHERE p.id = $1
-    //         GROUP BY p.id, b."name"
-    //     `;
-    
-    //     const post = await this.dataSource.query(query, [postId]);
-    
-    //     if (!post.length) {
-    //         return null;
-    //     }
-    
-    //     let userLikeStatus = likeStatus.None;
-    //     return this.mapPost(post[0], userLikeStatus);
-    // }
     async getPostForBlogById(postId: string): Promise<PostViewModel | null> {
         const query = `
             SELECT p.*, b."name" AS "blogName",
-                COUNT(CASE WHEN pl."likeStatus" = 'Like' THEN 1 END) AS likesCount,
-                COUNT(CASE WHEN pl."likeStatus" = 'Dislike' THEN 1 END) AS dislikesCount,
-                COALESCE(pl2."likeStatus", 'None') AS userLikeStatus
+                COUNT(CASE WHEN pl."likeStatus" = 'Like' THEN 1 END) AS "likesCount",
+                COUNT(CASE WHEN pl."likeStatus" = 'Dislike' THEN 1 END) AS "dislikesCount",
+                COALESCE(pl2."likeStatus", 'None') AS "userLikeStatus"
             FROM "Posts" p
             LEFT JOIN "Blogs" b 
                 ON p."blogId" = b.id
@@ -113,46 +88,6 @@ export class BlogQueryRepository {
         return this.mapPost(post[0], newestLikes);
     }
 
-    // async getPostsForBlog(helper: TypePostForBlogHalper, id: string, userId: string | null): Promise<PaginatorPostViewModel> {
-    //     const queryParams = blogPagination(helper);
-    
-    //     // Исправленный SQL-запрос
-    //     const query = `
-    //         SELECT p.*, b."name" AS "blogName",
-    //         COUNT(CASE WHEN pl."likeStatus" = 'Like' THEN 1 END) AS "likesCount",
-    //         COUNT(CASE WHEN pl."likeStatus" = 'Dislike' THEN 1 END) AS "dislikesCount"
-    //         FROM "Posts" p
-    //         LEFT JOIN "Blogs" b 
-    //             ON p."blogId" = b.id
-    //         LEFT JOIN "PostsLikes" pl 
-    //             ON p.id = pl."postId"
-    //         WHERE p."blogId" = $1
-    //         GROUP BY p.id, b."name"
-    //         ORDER BY "${queryParams.sortBy}" ${queryParams.sortDirection}
-    //         LIMIT $2 OFFSET $3
-    //     `;
-    
-    //     const posts = await this.dataSource.query(query, [id, queryParams.pageSize, (queryParams.pageNumber - 1) * queryParams.pageSize]);
-    //     const totalCount = await this.dataSource.query(`SELECT COUNT(*) FROM "Posts" WHERE "blogId" = $1`, [id]);
-    
-    //     const items = await Promise.all(posts.map(async post => {
-    //         let userLikeStatus = likeStatus.None;
-    //         if (userId) {
-    //             // Здесь можно добавить логику для получения статуса лайка пользователя
-    //             const like = await this.dataSource.query(`SELECT "likeStatus" FROM "PostsLikes" WHERE "postId" = $1 AND "userId" = $2`, [post.id, userId]);
-    //             userLikeStatus = like.length > 0 ? like[0].likeStatus : likeStatus.None;
-    //         }
-    //         return this.mapPost(post, userLikeStatus);
-    //     }));
-    
-    //     return {
-    //         pagesCount: Math.ceil(totalCount[0].count / queryParams.pageSize),
-    //         page: queryParams.pageNumber,
-    //         pageSize: queryParams.pageSize,
-    //         totalCount: parseInt(totalCount[0].count),
-    //         items,
-    //     };
-    // }
     async getPostsForBlog(helper: TypePostForBlogHalper, id: string, userId: string | null): Promise<PaginatorPostViewModel> {
         const queryParams = blogPagination(helper);
     

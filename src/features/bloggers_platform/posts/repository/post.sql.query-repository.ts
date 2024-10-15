@@ -1,66 +1,15 @@
 import { Injectable } from "@nestjs/common";
 import { TypePostHalper } from "src/base/types/post.types";
-import { MeViewModel } from "src/features/auth/api/models/output.model";
 import { DataSource } from "typeorm";
 import { PaginatorPostViewModel, PostViewModel } from "../api/models/output.model";
 import { postPagination } from "src/base/models/post.model";
-import { likeStatus, NewestLikesType } from "../../likes/api/models/input.model";
-import { Post } from "../domain/post.sql.entity";
 import { CommentViewModel, PaginatorCommentViewModelDB } from "../../comments/api/models/output.model";
 import { commentsPagination } from "src/base/models/comment.model";
-import { Comment } from "../../comments/domain/comment.sql.entity";
 
 @Injectable()
 export class PostQueryRepository {
     constructor(private dataSource: DataSource) {}
 
-    // async getAllPosts(helper: TypePostHalper, userId: string | null): Promise<PaginatorPostViewModel> {
-    //     const queryParams = postPagination(helper);
-    
-    //     const query = `
-    //         SELECT p.*, b."name" AS "blogName",
-    //         COUNT(CASE WHEN pl."likeStatus" = 'Like' THEN 1 END) AS "likesCount",
-    //         COUNT(CASE WHEN pl."likeStatus" = 'Dislike' THEN 1 END) AS "dislikesCount",
-    //         COALESCE(pl2."likeStatus", 'None') AS "userLikeStatus"
-    //         FROM "Posts" p
-    //         LEFT JOIN "Blogs" b 
-    //             ON p."blogId" = b.id
-    //         LEFT JOIN "PostsLikes" pl 
-    //             ON p.id = pl."postId"
-    //         LEFT JOIN "PostsLikes" pl2 
-    //             ON p.id = pl2."postId" AND pl2."userId" = $1
-    //         GROUP BY p.id, b."name", pl2."likeStatus"
-    //         ORDER BY "${queryParams.sortBy}" ${queryParams.sortDirection}
-    //         LIMIT $2 OFFSET $3
-    //     `;
-    
-    //     const posts = await this.dataSource.query(query, [userId, queryParams.pageSize, (queryParams.pageNumber - 1) * queryParams.pageSize]);
-    //     const totalCount = await this.dataSource.query(`SELECT COUNT(*) FROM "Posts"`);
-    //     const newestLikesQuery = `
-    //     SELECT 
-    //         pl."createdAt" AS "addedAt",
-    //         pl."userId",
-    //         u.login
-    //     FROM "PostsLikes" pl
-    //     LEFT JOIN "Users" u ON pl."userId" = u.id
-    //     WHERE pl."postId" = p.id AND pl."likeStatus" = 'Like'
-    //     ORDER BY pl."createdAt" DESC
-    //     LIMIT 3
-    // `;
-    // const newestLikes = await this.dataSource.query(newestLikesQuery);
-    
-    //     const items = await Promise.all(posts.map(async post => {
-    //         return this.mapPost(post, newestLikes);
-    //     }));
-    
-    //     return {
-    //         pagesCount: Math.ceil(totalCount[0].count / queryParams.pageSize),
-    //         page: queryParams.pageNumber,
-    //         pageSize: queryParams.pageSize,
-    //         totalCount: parseInt(totalCount[0].count),
-    //         items,
-    //     };
-    // }
     async getAllPosts(helper: TypePostHalper, userId: string | null): Promise<PaginatorPostViewModel> {
         const queryParams = postPagination(helper);
     

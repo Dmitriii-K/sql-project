@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { DataSource } from "typeorm";
-import { PostInputModel } from "../api/models/input.model";
 import { Post } from "../domain/post.sql.entity";
 import { BlogPostInputModel } from "../../blogs/api/models/input.model";
 import { PostLike } from "../../likes/domain/PostLikes.sql.entity";
@@ -82,16 +81,6 @@ export class PostRepository {
         ]);
         return !!result[1];
     }
-
-    // async updatePostCount(postId: string, likesCount: number, dislikesCount: number): Promise<boolean> {
-    //     const query = `
-    //         UPDATE "Posts"
-    //         SET "extendedLikesInfo.likesCount" = $1, "extendedLikesInfo.dislikesCount" = $2
-    //         WHERE id = $3
-    //     `;
-    //     const result = await this.dataSource.query(query, [likesCount, dislikesCount, postId]);
-    //     return !!result[1];
-    // }
 
     async deletePost(postId: string): Promise<boolean> {
         const query = `DELETE FROM "Posts" WHERE id = $1`;
