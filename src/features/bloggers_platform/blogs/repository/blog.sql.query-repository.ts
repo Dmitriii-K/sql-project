@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { Blog } from '../domain/blog.sql.entity';
-import { Post } from '../../posts/domain/post.sql.entity';
-import { likeStatus, NewestLikesType } from '../../likes/api/models/input.model';
 import { TypeBlogHalper, TypePostForBlogHalper } from 'src/base/types/blog.types';
 import { BlogViewModel, PaginatorBlogViewModel } from '../api/models/output.model';
 import { PaginatorPostViewModel, PostViewModel } from '../../posts/api/models/output.model';
@@ -50,39 +48,21 @@ export class BlogQueryRepository {
         return this.blogMap(blog[0]);
     }
 
-    // async getPostForBlogById(postId: string): Promise<PostViewModel | null> {// blogId???
-    //     // const query = `SELECT * FROM "Posts" WHERE id = $1`;
-    //     const query = `
-    //         SELECT p.*, b."name" 
-    //         FROM "Posts" p
-    //         left join "Blogs" b
-    //         on p."blogId" = b.id 
-    //         WHERE p."blogId" = $1
-    //     `;
-
-    //     const post = await this.dataSource.query(query, [postId]);// blogId???
-
-    //     if (!post.length) {
-    //         return null;
-    //     }
-
-    //     // let extendedLikesInfo = ;
-    //     let userLikeStatus = likeStatus.None;
-    //     return this.mapPost(post[0], userLikeStatus);
-    // }
-
     async getPostForBlogById(postId: string): Promise<PostViewModel | null> {
         const query = `
             SELECT p.*, b."name" AS "blogName",
-                COUNT(CASE WHEN pl."likeStatus" = 'Like' THEN 1 END) AS likesCount,
-                COUNT(CASE WHEN pl."likeStatus" = 'Dislike' THEN 1 END) AS dislikesCount
+                COUNT(CASE WHEN pl."likeStatus" = 'Like' THEN 1 END) AS "likesCount",
+                COUNT(CASE WHEN pl."likeStatus" = 'Dislike' THEN 1 END) AS "dislikesCount",
+                COALESCE(pl2."likeStatus", 'None') AS "userLikeStatus"
             FROM "Posts" p
             LEFT JOIN "Blogs" b 
                 ON p."blogId" = b.id
             LEFT JOIN "PostsLikes" pl 
                 ON p.id = pl."postId"
+            LEFT JOIN "PostsLikes" pl2 
+                ON p.id = pl2."postId"
             WHERE p.id = $1
-            GROUP BY p.id, b."name"
+            GROUP BY p.id, b."name", pl2."likeStatus"
         `;
     
         const post = await this.dataSource.query(query, [postId]);
@@ -91,72 +71,63 @@ export class BlogQueryRepository {
             return null;
         }
     
-        let userLikeStatus = likeStatus.None;
-        return this.mapPost(post[0], userLikeStatus);
+        // Получение newestLikes для каждого поста
+        const newestLikesQuery = `
+            SELECT 
+                pl."createdAt" AS "addedAt",
+                pl."userId",
+                u.login
+            FROM "PostsLikes" pl
+            LEFT JOIN "Users" u ON pl."userId" = u.id
+            WHERE pl."postId" = $1 AND pl."likeStatus" = 'Like'
+            ORDER BY pl."createdAt" DESC
+            LIMIT 3
+        `;
+        const newestLikes = await this.dataSource.query(newestLikesQuery, [postId]);
+    
+        return this.mapPost(post[0], newestLikes);
     }
-
-    // async getPostsForBlog(helper: TypePostForBlogHalper, id: string, userId: string | null): Promise<PaginatorPostViewModel> {
-    //     const queryParams = blogPagination(helper);
-
-    //     const query = `
-    //         SELECT * 
-    //         FROM "Posts"
-    //         WHERE "blogId" = $1
-    //         ORDER BY "${queryParams.sortBy}" ${queryParams.sortDirection}
-    //         LIMIT ${queryParams.pageSize} OFFSET ${(queryParams.pageNumber - 1) * queryParams.pageSize}
-    //     `;
-
-    //     const posts = await this.dataSource.query(query, [id]);
-    //     const totalCount = await this.dataSource.query(`SELECT COUNT(*) FROM "Posts" WHERE "blogId" = $1`, [id]);
-
-    //     const items = await Promise.all(posts.map(async post => {
-    //         let like;
-    //         if (userId) {
-    //             // Здесь можно добавить логику для получения статуса лайка пользователя
-    //         }
-    //         const userLikeStatus = like ? like.status : likeStatus.None;
-    //         return this.mapPost(post, userLikeStatus);
-    //     }));
-
-    //     return {
-    //         pagesCount: Math.ceil(totalCount[0].count / queryParams.pageSize),
-    //         page: queryParams.pageNumber,
-    //         pageSize: queryParams.pageSize,
-    //         totalCount: parseInt(totalCount[0].count),
-    //         items,
-    //     };
-    // }
 
     async getPostsForBlog(helper: TypePostForBlogHalper, id: string, userId: string | null): Promise<PaginatorPostViewModel> {
         const queryParams = blogPagination(helper);
     
-        // Исправленный SQL-запрос
         const query = `
             SELECT p.*, b."name" AS "blogName",
-            COUNT(CASE WHEN pl."likeStatus" = 'Like' THEN 1 END) AS "likesCount",
-            COUNT(CASE WHEN pl."likeStatus" = 'Dislike' THEN 1 END) AS "dislikesCount"
+                COUNT(CASE WHEN pl."likeStatus" = 'Like' THEN 1 END) AS "likesCount",
+                COUNT(CASE WHEN pl."likeStatus" = 'Dislike' THEN 1 END) AS "dislikesCount",
+                COALESCE(pl2."likeStatus", 'None') AS "userLikeStatus"
             FROM "Posts" p
             LEFT JOIN "Blogs" b 
                 ON p."blogId" = b.id
             LEFT JOIN "PostsLikes" pl 
                 ON p.id = pl."postId"
+            LEFT JOIN "PostsLikes" pl2 
+                ON p.id = pl2."postId" AND pl2."userId" = $2
             WHERE p."blogId" = $1
-            GROUP BY p.id, b."name"
+            GROUP BY p.id, b."name", pl2."likeStatus"
             ORDER BY "${queryParams.sortBy}" ${queryParams.sortDirection}
-            LIMIT $2 OFFSET $3
+            LIMIT $3 OFFSET $4
         `;
     
-        const posts = await this.dataSource.query(query, [id, queryParams.pageSize, (queryParams.pageNumber - 1) * queryParams.pageSize]);
+        const posts = await this.dataSource.query(query, [id, userId, queryParams.pageSize, (queryParams.pageNumber - 1) * queryParams.pageSize]);
         const totalCount = await this.dataSource.query(`SELECT COUNT(*) FROM "Posts" WHERE "blogId" = $1`, [id]);
     
         const items = await Promise.all(posts.map(async post => {
-            let userLikeStatus = likeStatus.None;
-            if (userId) {
-                // Здесь можно добавить логику для получения статуса лайка пользователя
-                const like = await this.dataSource.query(`SELECT "likeStatus" FROM "PostsLikes" WHERE "postId" = $1 AND "userId" = $2`, [post.id, userId]);
-                userLikeStatus = like.length > 0 ? like[0].likeStatus : likeStatus.None;
-            }
-            return this.mapPost(post, userLikeStatus);
+            // Получение newestLikes для каждого поста
+            const newestLikesQuery = `
+                SELECT 
+                    pl."createdAt" AS "addedAt",
+                    pl."userId",
+                    u.login
+                FROM "PostsLikes" pl
+                LEFT JOIN "Users" u ON pl."userId" = u.id
+                WHERE pl."postId" = $1 AND pl."likeStatus" = 'Like'
+                ORDER BY pl."createdAt" DESC
+                LIMIT 3
+            `;
+            const newestLikes = await this.dataSource.query(newestLikesQuery, [post.id]);
+    
+            return this.mapPost(post, newestLikes);
         }));
     
         return {
@@ -168,8 +139,7 @@ export class BlogQueryRepository {
         };
     }
 
-    mapPost(post: any, userLikeStatus: likeStatus): PostViewModel {
-        const newestLikes: NewestLikesType[] = [];
+    mapPost(post: any, newestLikes): PostViewModel {
         return {
             id: post.id,
             title: post.title,
@@ -181,8 +151,12 @@ export class BlogQueryRepository {
             extendedLikesInfo: {
                 likesCount: parseInt(post.likesCount, 10) || 0,
                 dislikesCount: parseInt(post.dislikesCount, 10) || 0,
-                myStatus: userLikeStatus || likeStatus.None,
-                newestLikes: newestLikes
+                myStatus: post.userLikeStatus,
+                newestLikes: newestLikes.map(like => ({
+                    addedAt: like.addedAt,
+                    userId: like.userId,
+                    login: like.login
+                }))
             },
         };
     }

@@ -5,7 +5,6 @@ import { TypeUserPagination } from "../api/models/input.models";
 import { PaginatorUserViewModel, UserViewModel } from "../api/models/output.models";
 import { userPagination } from "src/base/models/user.models";
 import { User } from "../domain/user.sql.entity";
-import { UserRepository } from "./users-sql-repository";
 
 @Injectable()
 export class UserQueryRepository {

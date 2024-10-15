@@ -1,14 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { TypePostHalper } from "src/base/types/post.types";
-import { MeViewModel } from "src/features/auth/api/models/output.model";
 import { DataSource } from "typeorm";
 import { PaginatorPostViewModel, PostViewModel } from "../api/models/output.model";
 import { postPagination } from "src/base/models/post.model";
-import { likeStatus, NewestLikesType } from "../../likes/api/models/input.model";
-import { Post } from "../domain/post.sql.entity";
 import { CommentViewModel, PaginatorCommentViewModelDB } from "../../comments/api/models/output.model";
 import { commentsPagination } from "src/base/models/comment.model";
-import { Comment } from "../../comments/domain/comment.sql.entity";
 
 @Injectable()
 export class PostQueryRepository {
@@ -36,19 +32,20 @@ export class PostQueryRepository {
     
         const posts = await this.dataSource.query(query, [userId, queryParams.pageSize, (queryParams.pageNumber - 1) * queryParams.pageSize]);
         const totalCount = await this.dataSource.query(`SELECT COUNT(*) FROM "Posts"`);
-        const newestLikesQuery = `
-        SELECT 
-            pl."createdAt" AS "addedAt",
-            pl."userId",
-            u.login
-        FROM "PostsLikes" pl
-        LEFT JOIN "Users" u ON pl."userId" = u.id
-        ORDER BY pl."createdAt" DESC
-        LIMIT 3
-    `;
-    const newestLikes = await this.dataSource.query(newestLikesQuery);
     
         const items = await Promise.all(posts.map(async post => {
+            const newestLikesQuery = `
+                SELECT 
+                    pl."createdAt" AS "addedAt",
+                    pl."userId",
+                    u.login
+                FROM "PostsLikes" pl
+                LEFT JOIN "Users" u ON pl."userId" = u.id
+                WHERE pl."postId" = $1 AND pl."likeStatus" = 'Like'
+                ORDER BY pl."createdAt" DESC
+                LIMIT 3
+            `;
+            const newestLikes = await this.dataSource.query(newestLikesQuery, [post.id]);
             return this.mapPost(post, newestLikes);
         }));
     
@@ -92,7 +89,7 @@ export class PostQueryRepository {
             u.login
         FROM "PostsLikes" pl
         LEFT JOIN "Users" u ON pl."userId" = u.id
-        WHERE pl."postId" = $1
+        WHERE pl."postId" = $1 AND pl."likeStatus" = 'Like'
         ORDER BY pl."createdAt" DESC
         LIMIT 3
     `;
@@ -153,7 +150,11 @@ export class PostQueryRepository {
                 likesCount: parseInt(post.likesCount, 10) || 0,
                 dislikesCount: parseInt(post.dislikesCount, 10) || 0,
                 myStatus: post.userLikeStatus,
-                newestLikes: newestLikes || []
+                newestLikes: newestLikes.map(like => ({
+                    addedAt: like.addedAt,
+                    userId: like.userId,
+                    login: like.login
+                }))
             },
         };
     }

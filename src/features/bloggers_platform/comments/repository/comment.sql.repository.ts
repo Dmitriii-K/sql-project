@@ -17,21 +17,12 @@ export class CommentRepository {
         return result.rowCount === 1;
     }
 
-    // async findAllLikesForPost(postId: string): Promise<CommentsLike[]> {
-    //     const query = `
-    //         SELECT * FROM "Likes"
-    //         WHERE "postId" = $1
-    //     `;
-    //     const result = await this.dataSource.query(query, [postId]);
-    //     return result;
-    // }
-
-    async findCommentLike(commentId: string): Promise<CommentsLike | null> {
+    async findCommentLike(commentId: string, userId: string): Promise<CommentsLike | null> {
         const query = `
             SELECT * FROM "CommentsLikes"
-            WHERE "commentsId" = $1
+            WHERE "commentsId" = $1 AND "userId" = $2
         `;
-        const result = await this.dataSource.query(query, [commentId]);
+        const result = await this.dataSource.query(query, [commentId, userId]);
         return result.length ? result[0] : null;
     }
 
@@ -54,15 +45,6 @@ export class CommentRepository {
         const result = await this.dataSource.query(query, [updateStatus, commentsId, userId]);
         return result.rowCount === 1;
     }
-
-    // async updateLikesInfo(commentId: string, likesCount: number, dislikesCount: number): Promise<void> {
-    //     const query = `
-    //         UPDATE "Comments"
-    //         SET "likesInfo.likesCount" = $1, "likesInfo.dislikesCount" = $2
-    //         WHERE id = $3
-    //     `;
-    //     await this.dataSource.query(query, [likesCount, dislikesCount, commentId]);
-    // }
 
     async findComment(commentId: string): Promise<Comment | null> {
         const query = `

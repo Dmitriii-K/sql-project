@@ -1,6 +1,5 @@
 import { PostRepository } from "../../repository/post.sql.repository";
 import { Post } from "../../domain/post.sql.entity";
-import { MeViewModel } from "src/features/auth/api/models/output.model";
 import { likeStatus } from "src/features/bloggers_platform/likes/api/models/input.model";
 import { CommandHandler } from "@nestjs/cqrs";
 import { PostLike } from "src/features/bloggers_platform/likes/domain/PostLikes.sql.entity";
@@ -20,7 +19,7 @@ export class UpdatePostLikeUseCase {
     async execute(command: UpdatePostLikeCommand) {
         const {userId, body, post} = command;
 
-        const existPostLike = await this.postRepository.findPostLike(post.id);
+        const existPostLike = await this.postRepository.findPostLike(post.id, userId);
         // console.log('postLike', existPostLike);//-------------------
         // console.log('likeStatus', body);//-------------------
         if (!existPostLike) {
