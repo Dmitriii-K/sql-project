@@ -45,7 +45,7 @@ export class BlogControllerSa {
         return newBlog;
     }
 
-    @UseGuards(SoftAuthGuard)
+    @UseGuards(SoftAuthGuard, BasicAuthGuard)
     @Get(':id/posts')
     async getPostsForBlog(
         @Query() query: TypePostForBlogHalper,
