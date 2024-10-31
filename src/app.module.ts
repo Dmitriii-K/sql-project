@@ -11,44 +11,14 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { BlogIsExistConstraint } from './infrastructure/decorators/validate/blog-is-exist.decorator';
 import configuration, { ConfigurationType } from './settings/configuration';
 import { validate } from './settings/env/configuration-validation';
-import { UpdatePostLikeUseCase } from './features/bloggers_platform/posts/application/use-cases/sql-update-post-like';
-import { LikeStatusUseCase } from './features/bloggers_platform/comments/application/use-cases/like-status';
-import { CreateCommentByPostUseCase } from './features/bloggers_platform/posts/application/use-cases/create-comment-by-post';
-import { CreatePostUseCase } from './features/bloggers_platform/posts/application/use-cases/create-post';
-import { CreatePostForBlogUseCase } from './features/bloggers_platform/blogs/application/use-cases/create-post-for-blog';
 import { UsersModule } from './features/users/users.module';
 import { SessionsModule } from './features/sessions/sessions.module';
 import { AuthModule } from './features/auth/auth.module';
-import { CreateUserUseCase } from './features/users/application/use-cases/create-user';
-import { RegisterUserUseCase } from './features/auth/application/use-cases/register-user';
-import { CreateSessionUseCase } from './features/auth/application/use-cases/create-session';
-import { ResendEmailUseCase } from './features/auth/application/use-cases/resend-email';
-import { UpdateRefreshTokenUseCase } from './features/auth/application/use-cases/update-refresh-token';
-import { NewPasswordUseCase } from './features/auth/application/use-cases/new-password';
-import { PasswordRecoveryUseCase } from './features/auth/application/use-cases/password-recovery';
-import { AuthLogoutAndDeleteSessionUseCase } from './features/auth/application/use-cases/auth-logout-and-delete-session';
-import { ConfirmEmailUseCase } from './features/auth/application/use-cases/confirm-email';
 import { AdaptersModule } from './infrastructure/adapters/adapters.module';
 import { CoreModule } from './infrastructure/core.module';
 import { TestingsModule } from './features/testing/testings.module';
 import { BloggersPlatformModule } from './features/bloggers_platform/bloggersPlatform.module';
 
-const useCases = [
-  CreateUserUseCase, 
-  RegisterUserUseCase, 
-  CreateSessionUseCase, 
-  ResendEmailUseCase, 
-  UpdateRefreshTokenUseCase,
-  NewPasswordUseCase,
-  PasswordRecoveryUseCase,
-  AuthLogoutAndDeleteSessionUseCase,
-  ConfirmEmailUseCase,
-  LikeStatusUseCase, 
-  UpdatePostLikeUseCase,
-  CreateCommentByPostUseCase,
-  CreatePostUseCase,
-  CreatePostForBlogUseCase
-];
 const modules = [TestingsModule, UsersModule, AuthModule, SessionsModule, AdaptersModule, CoreModule, BloggersPlatformModule];// импортировать! 
 
 @Module({
@@ -126,7 +96,6 @@ const modules = [TestingsModule, UsersModule, AuthModule, SessionsModule, Adapte
     // },
     AppService,
     LoginIsExistConstraint, EmailIsExistConstraint, BlogIsExistConstraint,
-    ...useCases
   ]
 })
 export class AppModule {}

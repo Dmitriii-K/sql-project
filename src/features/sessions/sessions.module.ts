@@ -7,7 +7,7 @@ import { UsersModule } from "../users/users.module";
 
 @Module({
     imports: [
-        UsersModule,// почему???
+        UsersModule
     ],
     controllers: [SessionController],
     providers: [SessionsService, SessionRepository, SessionsQueryRepository],
