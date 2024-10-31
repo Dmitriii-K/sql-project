@@ -15,15 +15,26 @@ import { PostQueryRepository } from "./posts/repository/post.sql.query-repositor
 import { CoreModule } from "src/infrastructure/core.module";
 import { UsersModule } from "../users/users.module";
 import { BlogControllerSa } from "./blogs/api/blog.controller-sa";
+import { LikeStatusUseCase } from "./comments/application/use-cases/like-status";
+import { CreatePostForBlogUseCase } from "./blogs/application/use-cases/create-post-for-blog";
+import { CreateCommentByPostUseCase } from "./posts/application/use-cases/create-comment-by-post";
+import { CreatePostUseCase } from "./posts/application/use-cases/create-post";
+import { UpdatePostLikeUseCase } from "./posts/application/use-cases/sql-update-post-like";
 
 @Module({
     imports: [
         CqrsModule,
         UsersModule,
-        // CoreModule,
+        CoreModule
     ],
     controllers: [BlogController, BlogControllerSa, CommentController, PostController],
-    providers: [BlogService, BlogRepository, BlogQueryRepository, CommentService, CommentRepository, CommentQueryRepository, PostService, PostRepository, PostQueryRepository],
+    providers: [
+        BlogService, BlogRepository, BlogQueryRepository, 
+        CommentService, CommentRepository, CommentQueryRepository, 
+        PostService, PostRepository, PostQueryRepository,
+        LikeStatusUseCase, UpdatePostLikeUseCase, CreateCommentByPostUseCase, 
+        CreatePostUseCase, CreatePostForBlogUseCase
+    ],
     exports: [BlogRepository, PostRepository, CommentRepository, BlogRepository]
 })
 export class BloggersPlatformModule {

@@ -10,7 +10,9 @@ async function bootstrap() {
   appUse(app);
   const configService = app.get(ConfigService<ConfigurationType, true>);
   const apiSettings = configService.get('apiSettings',{infer:true})
-  console.log(apiSettings.PORT)//----------------------
-  await app.listen(apiSettings.PORT);
+  // console.log(apiSettings.PORT)//----------------------
+  await app.listen(apiSettings.PORT, () => {
+    console.log(`Started at ${apiSettings.PORT} port`)
+  });
 }
 bootstrap();
